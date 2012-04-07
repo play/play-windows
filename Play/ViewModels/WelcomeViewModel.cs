@@ -15,7 +15,7 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public interface IWelcomeViewModel : IReactiveNotifyPropertyChanged
+    public interface IWelcomeViewModel : IRoutableViewModel
     {
         string BaseUrl { get; set; }
         string Username { get; set; }
@@ -44,12 +44,20 @@ namespace Play.ViewModels
 
         public ReactiveCommand OkButton { get; protected set; }
 
+        public string UrlPathSegment {
+            get { return "login"; }
+        }
+
+        public IScreen HostScreen { get; protected set; }
+
         [Inject]
         public WelcomeViewModel(
             IScreen screen, 
             ISecureBlobCache credCache,
             [Named("connectToServer")] [Optional] Func<string, string, IObservable<Unit>> connectToServerMock)
         {
+            HostScreen = screen;
+
             var canOk = this.WhenAny(x => x.BaseUrl, x => x.Username,
                 (b, u) => isValidUrl(b.Value) && !String.IsNullOrWhiteSpace(u.Value));
 
