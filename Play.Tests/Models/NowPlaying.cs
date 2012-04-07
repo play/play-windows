@@ -17,13 +17,11 @@ namespace Play.Tests.Models
 {
     public class NowPlayingTests : IEnableLogger
     {
-        const string baseUrl = "https://play.yourcompany.com";
-
         [Fact]
         public void FetchNowPlayingIntegrationTest()
         {
             var kernel = new MoqMockingKernel();
-            var client = new RestClient(baseUrl);
+            var client = new RestClient(IntegrationTestUrl.Current);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var result = NowPlayingHelper.FetchCurrent(client, "hubot", kernel.Get<IBlobCache>())
