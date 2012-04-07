@@ -26,7 +26,9 @@ namespace Play.Tests.Models
             var client = new RestClient(baseUrl);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
-            var result = NowPlayingHelper.FetchCurrent(client, kernel.Get<IBlobCache>()).First();
+            var result = NowPlayingHelper.FetchCurrent(client, "hubot", kernel.Get<IBlobCache>())
+                .Timeout(TimeSpan.FromSeconds(3.0), RxApp.TaskpoolScheduler)
+                .First();
 
             this.Log().Info(result.ToString());
             result.id.Should().NotBeNullOrEmpty();
