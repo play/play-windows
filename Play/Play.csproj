@@ -113,6 +113,7 @@
     </ApplicationDefinition>
     <Compile Include="Models\NowPlaying.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
+    <Compile Include="ViewModels\WelcomeViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
