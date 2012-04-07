@@ -29,9 +29,9 @@ namespace Play.Models
 
     public static class NowPlayingHelper
     {
-        public static IObservable<NowPlaying> FetchCurrent(IRestClient client, IBlobCache localMachineCache = null)
+        public static IObservable<NowPlaying> FetchCurrent(IRestClient client, string username, IBlobCache localMachineCache = null)
         {
-            var url = String.Format("{0}/now_playing?login=hubot", client.BaseUrl);
+            var url = String.Format("{0}/now_playing?login={1}", client.BaseUrl, username);
             localMachineCache = localMachineCache ?? AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
 
             return localMachineCache.DownloadUrl(url, null, true)
@@ -40,9 +40,9 @@ namespace Play.Models
                 .Select(JsonConvert.DeserializeObject<NowPlaying>);
         }
 
-        public static IObservable<BitmapImage> FetchImageForAlbum(this NowPlaying This, IRestClient client, IBlobCache localMachineCache = null)
+        public static IObservable<BitmapImage> FetchImageForAlbum(this NowPlaying This, IRestClient client, string username, IBlobCache localMachineCache = null)
         {
-            var url = String.Format("{0}/images/art/{1}.png?login=hubot", client.BaseUrl, This.id);
+            var url = String.Format("{0}/images/art/{1}.png?login={2}", client.BaseUrl, This.id, username);
             localMachineCache = localMachineCache ?? AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
 
             return localMachineCache.LoadImageFromUrl(url);
