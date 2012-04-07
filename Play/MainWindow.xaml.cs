@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Play.ViewModels;
 
 namespace Play
 {
@@ -20,9 +21,13 @@ namespace Play
     /// </summary>
     public partial class MainWindow : Window
     {
+        public AppBootstrapper AppBootstrapper { get; protected set; }
+
         public MainWindow()
         {
             InitializeComponent();
+            AppBootstrapper = new AppBootstrapper();
+            DataContext = AppBootstrapper;
         }
     }
 }
