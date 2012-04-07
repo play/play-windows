@@ -21,10 +21,18 @@ namespace Play.Models
         public string id { get; set; }
 // ReSharper restore InconsistentNaming
 
-        public static IObservable<NowPlaying> FetchCurrent(IRestClient client)
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+    }
+
+    public static class NowPlayingHelper
+    {
+        public static IObservable<NowPlaying> FetchCurrent(IRestClient client, IBlobCache localMachineCache = null)
         {
             var url = String.Format("{0}/now_playing?login=hubot", client.BaseUrl);
-            var localMachineCache = AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
+            localMachineCache = localMachineCache ?? AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
 
             return localMachineCache.DownloadUrl(url, null, true)
                 .Select(x => Encoding.UTF8.GetString(x))
@@ -32,10 +40,10 @@ namespace Play.Models
                 .Select(JsonConvert.DeserializeObject<NowPlaying>);
         }
 
-        public IObservable<BitmapImage> FetchImageForAlbum(IRestClient client)
+        public static IObservable<BitmapImage> FetchImageForAlbum(this NowPlaying This, IRestClient client, IBlobCache localMachineCache = null)
         {
-            var url = String.Format("{0}/images/art/{1}.png?login=hubot", client.BaseUrl, id);
-            var localMachineCache = AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
+            var url = String.Format("{0}/images/art/{1}.png?login=hubot", client.BaseUrl, This.id);
+            localMachineCache = localMachineCache ?? AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
 
             return localMachineCache.LoadImageFromUrl(url);
         }
