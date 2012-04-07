@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 11
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play", "Play\Play.csproj", "{0B5F8E32-7626-4FD9-851D-FFDCD8DD8B78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Play.Tests", "Play.Tests\Play.Tests.csproj", "{0E8BF004-6A4F-4848-9F20-B89E1E09DD61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{0B5F8E32-7626-4FD9-851D-FFDCD8DD8B78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B5F8E32-7626-4FD9-851D-FFDCD8DD8B78}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B5F8E32-7626-4FD9-851D-FFDCD8DD8B78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E8BF004-6A4F-4848-9F20-B89E1E09DD61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E8BF004-6A4F-4848-9F20-B89E1E09DD61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E8BF004-6A4F-4848-9F20-B89E1E09DD61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E8BF004-6A4F-4848-9F20-B89E1E09DD61}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
