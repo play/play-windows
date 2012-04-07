@@ -5,11 +5,14 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Akavache;
 using FluentAssertions;
+using Moq;
 using Ninject;
 using Ninject.MockingKernel.Moq;
 using Play.ViewModels;
 using ReactiveUI;
+using ReactiveUI.Routing;
 using ReactiveUI.Xaml;
 using Xunit;
 
@@ -82,6 +85,83 @@ namespace Play.Tests.ViewModels
             }
 
             errorThrown.Should().BeTrue();
+        }
+
+        [Fact]
+        public void SucceededLoginSavesTheInfo()
+        {
+            var kernel = new MoqMockingKernel();
+            kernel.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
+
+            kernel.Bind<Func<string, string, IObservable<Unit>>>()
+                .ToConstant<Func<string, string, IObservable<Unit>>>((url, user) => Observable.Return<Unit>(Unit.Default))
+                .Named("connectToServer");
+
+            var mock = kernel.GetMock<IScreen>();
+            mock.Setup(x => x.Router).Returns(new RoutingState());
+
+            kernel.Bind<IScreen>().ToConstant(mock.Object);
+
+            var initialPage = kernel.Get<IRoutableViewModel>();
+            kernel.Get<IScreen>().Router.NavigateAndReset.Execute(initialPage);
+
+            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
+            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+
+            var fixture = kernel.Get<IWelcomeViewModel>();
+
+            bool errorThrown = false;
+            string expectedUser = "Foo";
+            string expectedUrl = "http://bar";
+            using (UserError.OverrideHandlersForTesting(ex => { errorThrown = true; return Observable.Return(RecoveryOptionResult.CancelOperation); })) {
+                fixture.Username = expectedUser;
+                fixture.BaseUrl = expectedUrl;
+                fixture.OkButton.Execute(null);
+            }
+
+            errorThrown.Should().BeFalse();
+
+            cache.GetObjectAsync<string>("BaseUrl").First().Should().Be(expectedUrl);
+            cache.GetObjectAsync<string>("Username").First().Should().Be(expectedUser);
+        }
+
+        [Fact]
+        public void SucceededLoginNavigatesBackToInitialPage()
+        {
+            var kernel = new MoqMockingKernel();
+            kernel.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
+
+            kernel.Bind<Func<string, string, IObservable<Unit>>>()
+                .ToConstant<Func<string, string, IObservable<Unit>>>((url, user) => Observable.Return<Unit>(Unit.Default))
+                .Named("connectToServer");
+
+            var mock = kernel.GetMock<IScreen>();
+            var routingState = new RoutingState();
+            mock.Setup(x => x.Router).Returns(routingState);
+
+            kernel.Bind<IScreen>().ToConstant(mock.Object);
+
+            var initialPage = kernel.Get<IRoutableViewModel>();
+            kernel.Get<IScreen>().Router.NavigateAndReset.Execute(initialPage);
+
+            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
+            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+
+            var fixture = kernel.Get<IWelcomeViewModel>();
+            kernel.Get<IScreen>().Router.Navigate.Execute(fixture);
+
+            bool errorThrown = false;
+            string expectedUser = "Foo";
+            string expectedUrl = "http://bar";
+            using (UserError.OverrideHandlersForTesting(ex => { errorThrown = true; return Observable.Return(RecoveryOptionResult.CancelOperation); })) {
+                fixture.Username = expectedUser;
+                fixture.BaseUrl = expectedUrl;
+                fixture.OkButton.Execute(null);
+            }
+
+            errorThrown.Should().BeFalse();
+
+            kernel.Get<IScreen>().Router.GetCurrentViewModel().Should().Be(initialPage);
         }
     }
 }
