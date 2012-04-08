@@ -132,9 +132,7 @@
         </member>
         <member name="M:ReactiveUI.Routing.RoutingStateMixins.ViewModelObservable(ReactiveUI.Routing.IRoutingState)">
             <summary>
-            Returns an Observable that signals ViewModel changes. This is a
-            Replay Observable, so Subscribing to it will always produce a
-            (possibly null) initial value.
+            Returns an Observable that signals ViewModel changes.
             </summary>
         </member>
         <member name="M:ReactiveUI.Routing.RxRouting.ResolveView``1(``0)">
