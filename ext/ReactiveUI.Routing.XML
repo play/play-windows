@@ -108,11 +108,6 @@
             IRoutableViewModel.
             </summary>
         </member>
-        <member name="P:ReactiveUI.Routing.RoutingState.CurrentViewModel">
-            <summary>
-            The currently visible ViewModel.
-            </summary>
-        </member>
         <member name="M:ReactiveUI.Routing.RoutingStateMixins.GetUrlForCurrentRoute(ReactiveUI.Routing.IRoutingState)">
             <summary>
             Generates a routing Uri based on the current route state
@@ -132,9 +127,7 @@
         </member>
         <member name="M:ReactiveUI.Routing.RoutingStateMixins.ViewModelObservable(ReactiveUI.Routing.IRoutingState)">
             <summary>
-            Returns an Observable that signals ViewModel changes. This is a
-            Replay Observable, so Subscribing to it will always produce a
-            (possibly null) initial value.
+            Returns an Observable that signals ViewModel changes.
             </summary>
         </member>
         <member name="M:ReactiveUI.Routing.RxRouting.ResolveView``1(``0)">
