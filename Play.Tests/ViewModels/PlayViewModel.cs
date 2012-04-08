@@ -25,10 +25,28 @@ namespace Play.Tests.ViewModels
             kernel.Bind<ISecureBlobCache>().ToConstant(cache);
 
             var app = new AppBootstrapper(kernel);
-            var fixture = kernel.Get<IPlayViewModel>();
-            app.Router.Navigate.Execute(fixture);
+            using (var fixture = kernel.Get<IPlayViewModel>()) {
+                app.Router.Navigate.Execute(fixture);
+                (app.Router.GetCurrentViewModel() is IWelcomeViewModel).Should().BeTrue();
+            }
+        }
 
-            (app.Router.GetCurrentViewModel() is IWelcomeViewModel).Should().BeTrue();
+        [Fact]
+        public void NavigatingToPlayWithCredsShouldStayOnPlay()
+        {
+            var kernel = new MoqMockingKernel();
+            kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
+
+            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
+            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+            cache.InsertObject("BaseUrl", "https://example.com");
+            cache.InsertObject("Username", "hubot");
+
+            var app = new AppBootstrapper(kernel);
+            using (var fixture = kernel.Get<IPlayViewModel>()) {
+                app.Router.Navigate.Execute(fixture);
+                (app.Router.GetCurrentViewModel() is IPlayViewModel).Should().BeTrue();
+            }
         }
     }
 }
