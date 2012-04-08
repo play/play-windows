@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Akavache;
@@ -78,6 +79,17 @@ namespace Play.ViewModels
                     credCache.InsertObject("Username", Username);
                     screen.Router.NavigateBack.Execute(null);
                 });
+
+            var error = new Subject<string>();
+            UserError.RegisterHandler(ex => {
+                error.OnNext(ex.ErrorMessage);
+                return Observable.Return(RecoveryOptionResult.CancelOperation);
+            });
+
+            this.WhenAny(x => x.Username, x => x.BaseUrl, (_, __) => Unit.Default)
+                .Subscribe(_ => error.OnNext(null));
+
+            error.ToProperty(this, x => x.ErrorMessage);
         }
 
         bool isValidUrl(string url)
