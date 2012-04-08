@@ -29,6 +29,8 @@ namespace Play.ViewModels
 
             Kernel.Bind<IScreen>().ToConstant(this);
             Kernel.Bind<IAppBootstrapper>().ToConstant(this);
+            Kernel.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
+            Kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
 
             RxApp.ConfigureServiceLocator(
                 (type, contract) => Kernel.Get(type, contract),

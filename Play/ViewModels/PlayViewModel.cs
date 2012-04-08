@@ -11,7 +11,14 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public class PlayViewModel : ReactiveObject, IRoutableViewModel
+    public interface IPlayViewModel : IRoutableViewModel
+    {
+        ReactiveCommand TogglePlay { get; }
+        BitmapImage AlbumArt { get; }
+        NowPlaying Model { get; }
+    }
+
+    public class PlayViewModel : ReactiveObject, IPlayViewModel
     {
         public string UrlPathSegment {
             get { return "play"; }
