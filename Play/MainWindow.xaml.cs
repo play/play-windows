@@ -26,6 +26,7 @@ namespace Play
         public MainWindow()
         {
             InitializeComponent();
+
             AppBootstrapper = new AppBootstrapper();
             DataContext = AppBootstrapper;
         }
