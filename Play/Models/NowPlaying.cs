@@ -38,7 +38,6 @@ namespace Play.Models
 
             return localMachineCache.DownloadUrl(url, null, true)
                 .Select(x => Encoding.UTF8.GetString(x))
-                .Do(Console.WriteLine)
                 .Select(JsonConvert.DeserializeObject<NowPlaying>);
         }
 

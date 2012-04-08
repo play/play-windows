@@ -50,7 +50,6 @@ namespace Play.ViewModels
                 .Where(_ => authenticatedClient != null)
                 .SelectMany(client => NowPlayingHelper.FetchCurrent(authenticatedClient))
                 .DistinctUntilChanged(x => x.id)
-                .Do(x => Console.WriteLine(x.name), ex => Console.WriteLine(ex))
                 .Multicast(new Subject<NowPlaying>());
 
             latestTrack.Connect();
