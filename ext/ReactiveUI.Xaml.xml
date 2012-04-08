@@ -181,6 +181,14 @@
             <param name="errorHandler">The replacement UserError handler.</param>
             <returns>An IDisposable which will unregister the test handler.</returns>
         </member>
+        <member name="M:ReactiveUI.Xaml.UserError.OverrideHandlersForTesting(System.Func{ReactiveUI.Xaml.UserError,ReactiveUI.Xaml.RecoveryOptionResult})">
+            <summary>
+            This method replaces *all* UserError handlers with the specified
+            handler. Use it for testing code that may throw UserErrors.
+            </summary>
+            <param name="errorHandler">The replacement UserError handler.</param>
+            <returns>An IDisposable which will unregister the test handler.</returns>
+        </member>
         <member name="P:ReactiveUI.Xaml.UserError.Domain">
             <summary>
             The component that originally threw the error - if this is not
