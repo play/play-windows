@@ -49,15 +49,18 @@ namespace Play.ViewModels
             var latestTrack = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(5), RxApp.TaskpoolScheduler)
                 .Where(_ => authenticatedClient != null)
                 .SelectMany(client => NowPlayingHelper.FetchCurrent(authenticatedClient))
+                .Catch(Observable.Return<NowPlaying>(null))
                 .DistinctUntilChanged(x => x.id)
                 .Multicast(new Subject<NowPlaying>());
 
             latestTrack.Connect();
 
-            _Model = latestTrack.ToProperty(this, x => x.Model);
+            _Model = latestTrack
+                .Where(track => track != null)
+                .ToProperty(this, x => x.Model);
 
             _AlbumArt = latestTrack
-                .Where(_ => authenticatedClient != null)
+                .Where(track => authenticatedClient != null && track != null)
                 .SelectMany(x => x.FetchImageForAlbum(authenticatedClient))
                 .ToProperty(this, x => x.AlbumArt);
 
