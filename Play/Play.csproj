@@ -115,6 +115,12 @@
     <Compile Include="ViewModels\AppBootstrapper.cs" />
     <Compile Include="ViewModels\PlayViewModel.cs" />
     <Compile Include="ViewModels\WelcomeViewModel.cs" />
+    <Compile Include="Views\PlayView.xaml.cs">
+      <DependentUpon>PlayView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WelcomeViewModel.xaml.cs">
+      <DependentUpon>WelcomeViewModel.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -127,6 +133,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\PlayView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\WelcomeViewModel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
