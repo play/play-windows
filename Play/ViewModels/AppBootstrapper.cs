@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading.Tasks;
 using Akavache;
@@ -14,7 +15,7 @@ namespace Play.ViewModels
 {
     public interface IAppBootstrapper : IScreen
     {
-        Task<IRestClient> GetAuthenticatedClient();
+        IObservable<IRestClient> GetAuthenticatedClient();
     }
 
     public class AppBootstrapper : ReactiveObject, IAppBootstrapper
@@ -36,7 +37,8 @@ namespace Play.ViewModels
             BlobCache.ApplicationName = "PlayForWindows";
         }
 
-        public async Task<IRestClient> GetAuthenticatedClient()
+        public IObservable<IRestClient> GetAuthenticatedClient() { return getAuthenticatedClient().ToObservable(); }
+        async Task<IRestClient> getAuthenticatedClient()
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
             var baseUrl = await blobCache.GetObjectAsync<string>("BaseUrl");
