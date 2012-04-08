@@ -11,7 +11,7 @@ using RestSharp;
 
 namespace Play.Models
 {
-    public class NowPlaying
+    public class Song
     {
 // ReSharper disable InconsistentNaming
         public string album { get; set; }
@@ -28,9 +28,9 @@ namespace Play.Models
         }
     }
 
-    public static class NowPlayingHelper
+    public static class SongHelper
     {
-        public static IObservable<NowPlaying> FetchCurrent(IRestClient client, IBlobCache localMachineCache = null)
+        public static IObservable<Song> FetchCurrent(IRestClient client, IBlobCache localMachineCache = null)
         {
             var user = client.DefaultParameters.FirstOrDefault(x => x.Name == "login").Value;
             var url = String.Format("{0}/now_playing?login={1}", client.BaseUrl, user);
@@ -38,10 +38,10 @@ namespace Play.Models
 
             return localMachineCache.DownloadUrl(url, null, true)
                 .Select(x => Encoding.UTF8.GetString(x))
-                .Select(JsonConvert.DeserializeObject<NowPlaying>);
+                .Select(JsonConvert.DeserializeObject<Song>);
         }
 
-        public static IObservable<BitmapImage> FetchImageForAlbum(this NowPlaying This, IRestClient client, IBlobCache localMachineCache = null)
+        public static IObservable<BitmapImage> FetchImageForAlbum(this Song This, IRestClient client, IBlobCache localMachineCache = null)
         {
             var user = client.DefaultParameters.FirstOrDefault(x => x.Name == "login").Value;
             var url = String.Format("{0}/images/art/{1}.png?login={2}", client.BaseUrl, This.id, user);

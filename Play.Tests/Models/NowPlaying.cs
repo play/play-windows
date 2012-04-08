@@ -25,7 +25,7 @@ namespace Play.Tests.Models
             client.AddDefaultParameter("login", "xpaulbettsx");
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
-            var result = NowPlayingHelper.FetchCurrent(client, kernel.Get<IBlobCache>())
+            var result = SongHelper.FetchCurrent(client, kernel.Get<IBlobCache>())
                 .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
                 .First();
 
