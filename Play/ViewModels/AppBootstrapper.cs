@@ -24,13 +24,9 @@ namespace Play.ViewModels
 
         public AppBootstrapper(IKernel testKernel = null, IRoutingState router = null)
         {
-            Kernel = testKernel ?? new StandardKernel();
-            Router = router ?? new RoutingState();
-
-            Kernel.Bind<IScreen>().ToConstant(this);
+            Kernel = testKernel ?? createDefaultKernel();
             Kernel.Bind<IAppBootstrapper>().ToConstant(this);
-            Kernel.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
-            Kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
+            Router = router ?? new RoutingState();
 
             RxApp.ConfigureServiceLocator(
                 (type, contract) => Kernel.Get(type, contract),
@@ -52,5 +48,17 @@ namespace Play.ViewModels
         }
 
         public static IKernel Kernel { get; protected set; }
+
+        IKernel createDefaultKernel()
+        {
+            var ret = new StandardKernel();
+
+            ret.Bind<IScreen>().ToConstant(this);
+            ret.Bind<IAppBootstrapper>().ToConstant(this);
+            ret.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
+            ret.Bind<IPlayViewModel>().To<PlayViewModel>();
+
+            return ret;
+        }
     }
 }
