@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Akavache;
 using Ninject;
+using Play.Views;
 using ReactiveUI;
 using ReactiveUI.Routing;
 using RestSharp;
@@ -24,6 +25,8 @@ namespace Play.ViewModels
 
         public AppBootstrapper(IKernel testKernel = null, IRoutingState router = null)
         {
+            BlobCache.ApplicationName = "PlayForWindows";
+
             Kernel = testKernel ?? createDefaultKernel();
             Kernel.Bind<IAppBootstrapper>().ToConstant(this);
             Router = router ?? new RoutingState();
@@ -32,7 +35,7 @@ namespace Play.ViewModels
                 (type, contract) => Kernel.Get(type, contract),
                 (type, contract) => Kernel.GetAll(type, contract));
 
-            BlobCache.ApplicationName = "PlayForWindows";
+            Router.Navigate.Execute(Kernel.Get<IPlayViewModel>());
         }
 
         public IObservable<IRestClient> GetAuthenticatedClient() { return getAuthenticatedClient().ToObservable(); }
@@ -54,9 +57,13 @@ namespace Play.ViewModels
             var ret = new StandardKernel();
 
             ret.Bind<IScreen>().ToConstant(this);
-            ret.Bind<IAppBootstrapper>().ToConstant(this);
             ret.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
             ret.Bind<IPlayViewModel>().To<PlayViewModel>();
+            ret.Bind<ISecureBlobCache>().ToConstant(BlobCache.Secure);
+            ret.Bind<IBlobCache>().ToConstant(BlobCache.LocalMachine).Named("LocalMachine");
+            ret.Bind<IBlobCache>().ToConstant(BlobCache.UserAccount).Named("UserAccount");
+            ret.Bind<IViewForViewModel<WelcomeViewModel>>().To<WelcomeView>();
+            ret.Bind<IViewForViewModel<PlayViewModel>>().To<PlayView>();
 
             return ret;
         }

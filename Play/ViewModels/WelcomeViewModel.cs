@@ -94,6 +94,8 @@ namespace Play.ViewModels
 
         bool isValidUrl(string url)
         {
+            if (String.IsNullOrWhiteSpace(url)) return false;
+
             try {
                 var dontcare = new Uri(url);
                 this.Log().Debug("Entered {0}", url);
