@@ -22,11 +22,11 @@ namespace Play.Tests.Models
         {
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
-            client.AddDefaultParameter("login", "hubot");
+            client.AddDefaultParameter("login", "xpaulbettsx");
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var result = NowPlayingHelper.FetchCurrent(client, kernel.Get<IBlobCache>())
-                .Timeout(TimeSpan.FromSeconds(3.0), RxApp.TaskpoolScheduler)
+                .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
                 .First();
 
             this.Log().Info(result.ToString());

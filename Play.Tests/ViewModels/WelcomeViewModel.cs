@@ -169,7 +169,7 @@ namespace Play.Tests.ViewModels
 
     public class WelcomeViewModelIntegrationTests
     {
-        const string dummyUser = "hubot";
+        const string dummyUser = "xpaulbettsx";
 
         [Fact]
         public void SuccessfulLoginIntegrationTest()
