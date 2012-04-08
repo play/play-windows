@@ -23,14 +23,14 @@ using RestSharp;
 
 namespace Play.Views
 {
-    public partial class PlayView : UserControl, IViewForViewModel<IPlayViewModel>
+    public partial class PlayView : UserControl, IViewForViewModel<PlayViewModel>
     {
-        public IPlayViewModel ViewModel {
-            get { return (IPlayViewModel)GetValue(ViewModelProperty); }
+        public PlayViewModel ViewModel {
+            get { return (PlayViewModel)GetValue(ViewModelProperty); }
             set { SetValue(ViewModelProperty, value); }
         }
         public static readonly DependencyProperty ViewModelProperty =
-            DependencyProperty.Register("ViewModel", typeof(IPlayViewModel), typeof(PlayView), new UIPropertyMetadata(null));
+            DependencyProperty.Register("ViewModel", typeof(PlayViewModel), typeof(PlayView), new UIPropertyMetadata(null));
 
         public PlayView()
         {
