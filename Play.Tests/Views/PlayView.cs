@@ -16,7 +16,7 @@ namespace Play.Tests.Views
         public void GetUriFromRestClientTest()
         {
             var test = new RestClient("https://play.yourcompany.com");
-            PlayView.GetUriFromRestClient(test).Should().Be("https://play.yourcompany.com:8000/listen");
+            PlayView.GetUriFromRestClient(test).Should().Be("http://play.yourcompany.com:8000/listen");
         }
     }
 }
