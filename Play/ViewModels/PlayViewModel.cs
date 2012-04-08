@@ -16,6 +16,7 @@ namespace Play.ViewModels
         ReactiveCommand TogglePlay { get; }
         BitmapImage AlbumArt { get; }
         NowPlaying Model { get; }
+        IRestClient AuthenticatedClient { get; }
     }
 
     public class PlayViewModel : ReactiveObject, IPlayViewModel
@@ -38,7 +39,10 @@ namespace Play.ViewModels
             get { return _Model.Value; }
         }
 
-        IRestClient authenticatedClient = null;
+        ObservableAsPropertyHelper<IRestClient> _AuthenticatedClient;
+        public IRestClient AuthenticatedClient {
+            get { return _AuthenticatedClient.Value; }
+        }
 
         [Inject]
         public PlayViewModel(IAppBootstrapper bootstrapper)
@@ -46,9 +50,19 @@ namespace Play.ViewModels
             HostScreen = bootstrapper;
             TogglePlay = new ReactiveCommand();
 
+            var newClient = this.NavigatedToMe()
+                .SelectMany(_ => bootstrapper.GetAuthenticatedClient())
+                .Catch(Observable.Return<IRestClient>(null));
+
+            newClient.ToProperty(this, x => x.AuthenticatedClient);
+
+            newClient
+                .Where(client => client == null)
+                .Subscribe(client => HostScreen.Router.Navigate.Execute(AppBootstrapper.Kernel.Get<IWelcomeViewModel>()));
+
             var latestTrack = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(5), RxApp.TaskpoolScheduler)
-                .Where(_ => authenticatedClient != null)
-                .SelectMany(client => NowPlayingHelper.FetchCurrent(authenticatedClient))
+                .Where(_ => AuthenticatedClient != null)
+                .SelectMany(client => NowPlayingHelper.FetchCurrent(AuthenticatedClient))
                 .Catch(Observable.Return<NowPlaying>(null))
                 .DistinctUntilChanged(x => x.id)
                 .Multicast(new Subject<NowPlaying>());
@@ -60,21 +74,9 @@ namespace Play.ViewModels
                 .ToProperty(this, x => x.Model);
 
             _AlbumArt = latestTrack
-                .Where(track => authenticatedClient != null && track != null)
-                .SelectMany(x => x.FetchImageForAlbum(authenticatedClient))
+                .Where(track => AuthenticatedClient != null && track != null)
+                .SelectMany(x => x.FetchImageForAlbum(AuthenticatedClient))
                 .ToProperty(this, x => x.AlbumArt);
-
-            this.NavigatedToMe()
-                .SelectMany(_ => bootstrapper.GetAuthenticatedClient())
-                .Catch(Observable.Return<IRestClient>(null))
-                .Subscribe(client => {
-                    if (client == null) {
-                        authenticatedClient = null;
-                        HostScreen.Router.Navigate.Execute(AppBootstrapper.Kernel.Get<IWelcomeViewModel>());
-                    }
-
-                    authenticatedClient = client;
-                });
         }
     }
 }
