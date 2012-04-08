@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Windows.Media.Imaging;
@@ -29,9 +30,10 @@ namespace Play.Models
 
     public static class NowPlayingHelper
     {
-        public static IObservable<NowPlaying> FetchCurrent(IRestClient client, string username, IBlobCache localMachineCache = null)
+        public static IObservable<NowPlaying> FetchCurrent(IRestClient client, IBlobCache localMachineCache = null)
         {
-            var url = String.Format("{0}/now_playing?login={1}", client.BaseUrl, username);
+            var user = client.DefaultParameters.FirstOrDefault(x => x.Name == "login");
+            var url = String.Format("{0}/now_playing?login={1}", client.BaseUrl, user);
             localMachineCache = localMachineCache ?? AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
 
             return localMachineCache.DownloadUrl(url, null, true)
@@ -40,9 +42,10 @@ namespace Play.Models
                 .Select(JsonConvert.DeserializeObject<NowPlaying>);
         }
 
-        public static IObservable<BitmapImage> FetchImageForAlbum(this NowPlaying This, IRestClient client, string username, IBlobCache localMachineCache = null)
+        public static IObservable<BitmapImage> FetchImageForAlbum(this NowPlaying This, IRestClient client, IBlobCache localMachineCache = null)
         {
-            var url = String.Format("{0}/images/art/{1}.png?login={2}", client.BaseUrl, This.id, username);
+            var user = client.DefaultParameters.FirstOrDefault(x => x.Name == "login");
+            var url = String.Format("{0}/images/art/{1}.png?login={2}", client.BaseUrl, This.id, user);
             localMachineCache = localMachineCache ?? AppBootstrapper.Kernel.Get<IBlobCache>("LocalMachine");
 
             return localMachineCache.LoadImageFromUrl(url);

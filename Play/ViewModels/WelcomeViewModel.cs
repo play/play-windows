@@ -107,7 +107,8 @@ namespace Play.ViewModels
         public IObservable<Unit> ConnectToPlay(string baseUrl, string username)
         {
             var client = new RestClient(baseUrl);
-            return NowPlayingHelper.FetchCurrent(client, username, new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null))
+            client.AddDefaultParameter("login", username);
+            return NowPlayingHelper.FetchCurrent(client, new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null))
                 .Select(_ => Unit.Default);
         }
     }
