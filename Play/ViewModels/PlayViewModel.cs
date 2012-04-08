@@ -99,6 +99,7 @@ namespace Play.ViewModels
             latestTrack
                 .Where(track => AuthenticatedClient != null && track != null)
                 .SelectMany(x => AuthenticatedClient.FetchImageForAlbum(x))
+                .Catch(Observable.Return<BitmapImage>(null))
                 .ToProperty(this, x => x.AlbumArt);
         }
 
