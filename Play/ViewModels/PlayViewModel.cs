@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Windows.Media.Imaging;
 using Ninject;
 using Play.Models;
@@ -11,7 +12,7 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public interface IPlayViewModel : IRoutableViewModel
+    public interface IPlayViewModel : IRoutableViewModel, IDisposable
     {
         ReactiveCommand TogglePlay { get; }
         BitmapImage AlbumArt { get; }
@@ -44,6 +45,8 @@ namespace Play.ViewModels
             get { return _AuthenticatedClient.Value; }
         }
 
+        IDisposable _inner;
+
         [Inject]
         public PlayViewModel(IAppBootstrapper bootstrapper)
         {
@@ -67,7 +70,7 @@ namespace Play.ViewModels
                 .DistinctUntilChanged(x => x.id)
                 .Multicast(new Subject<NowPlaying>());
 
-            latestTrack.Connect();
+            _inner = latestTrack.Connect();
 
             _Model = latestTrack
                 .Where(track => track != null)
@@ -77,6 +80,14 @@ namespace Play.ViewModels
                 .Where(track => AuthenticatedClient != null && track != null)
                 .SelectMany(x => x.FetchImageForAlbum(AuthenticatedClient))
                 .ToProperty(this, x => x.AlbumArt);
+        }
+
+        public void Dispose()
+        {
+            var disp = Interlocked.Exchange(ref _inner, null);
+            if (disp != null) {
+                disp.Dispose();
+            }
         }
     }
 }
