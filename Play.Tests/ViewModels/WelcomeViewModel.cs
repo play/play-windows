@@ -194,7 +194,7 @@ namespace Play.Tests.ViewModels
             fixture.Username = dummyUser;
             fixture.OkButton.Execute(null);
 
-            kernel.Get<IScreen>().Router.ViewModelObservable()
+            kernel.Get<IScreen>().Router.ViewModelObservable().Skip(1)
                 .Timeout(TimeSpan.FromSeconds(6.0), RxApp.TaskpoolScheduler)
                 .First();
 
