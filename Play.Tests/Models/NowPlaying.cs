@@ -22,10 +22,13 @@ namespace Play.Tests.Models
         {
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
+
             client.AddDefaultParameter("login", "xpaulbettsx");
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
-            var result = SongHelper.FetchCurrent(client, kernel.Get<IBlobCache>())
+            var api = new PlayApi(client, kernel.Get<IBlobCache>());
+
+            var result = api.NowPlaying()
                 .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
                 .First();
 

@@ -111,7 +111,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\NowPlaying.cs" />
+    <Compile Include="Models\PlayApi.cs" />
+    <Compile Include="Models\Song.cs" />
+    <Compile Include="RestSharpRxHelper.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
     <Compile Include="ViewModels\PlayViewModel.cs" />
     <Compile Include="ViewModels\WelcomeViewModel.cs" />

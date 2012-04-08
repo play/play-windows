@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Akavache;
 using FluentAssertions;
 using Ninject;
 using Ninject.MockingKernel.Moq;
+using Play.Models;
 using Play.ViewModels;
+using ReactiveUI;
 using ReactiveUI.Routing;
 using Xunit;
+using Moq;
 
 namespace Play.Tests.ViewModels
 {
@@ -36,6 +41,7 @@ namespace Play.Tests.ViewModels
         {
             var kernel = new MoqMockingKernel();
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
 
             var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
             kernel.Bind<ISecureBlobCache>().ToConstant(cache);
@@ -54,20 +60,49 @@ namespace Play.Tests.ViewModels
         {
             var kernel = new MoqMockingKernel();
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
 
             var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
             kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+
             cache.InsertObject("BaseUrl", "https://example.com");
             cache.InsertObject("Username", "hubot");
 
             var app = new AppBootstrapper(kernel);
             using (var fixture = kernel.Get<IPlayViewModel>()) {
                 app.Router.Navigate.Execute(fixture);
-                (app.Router.GetCurrentViewModel() is IPlayViewModel).Should().BeTrue();
+                var vm = app.Router.GetCurrentViewModel();
+                (vm is IPlayViewModel).Should().BeTrue();
 
                 fixture.Logout.Execute(null);
                 (app.Router.GetCurrentViewModel() is IWelcomeViewModel).Should().BeTrue();
             }
-        }
+        } 
+
+        [Fact]
+        public void ListenUrlShouldCorrespondToActualUrl()
+        {
+            var kernel = new MoqMockingKernel();
+            kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
+
+            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
+            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+
+            cache.InsertObject("BaseUrl", "https://example.com");
+            cache.InsertObject("Username", "hubot");
+
+            var app = new AppBootstrapper(kernel);
+            using (var fixture = kernel.Get<IPlayViewModel>()) {
+                app.Router.Navigate.Execute(fixture);
+                var vm = app.Router.GetCurrentViewModel() as IPlayViewModel;
+                vm.Should().NotBeNull();
+
+                // XXX: Why do I have to do this
+                Thread.Sleep(100);
+
+                vm.ListenUrl.Should().Be("http://example.com:8000/listen");
+            }
+        }       
     }
 }

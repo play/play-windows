@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Akavache;
 using Ninject;
+using Play.Models;
 using Play.Views;
 using ReactiveUI;
 using ReactiveUI.Routing;
@@ -16,7 +17,7 @@ namespace Play.ViewModels
 {
     public interface IAppBootstrapper : IScreen
     {
-        IObservable<IRestClient> GetAuthenticatedClient();
+        IObservable<IPlayApi> GetPlayApi();
         void EraseCredentials();
     }
 
@@ -24,6 +25,7 @@ namespace Play.ViewModels
     {
         public IRoutingState Router { get; protected set; }
 
+        readonly Func<IObservable<IPlayApi>> apiFactory;
         public AppBootstrapper(IKernel testKernel = null, IRoutingState router = null)
         {
             BlobCache.ApplicationName = "PlayForWindows";
@@ -31,6 +33,8 @@ namespace Play.ViewModels
             Kernel = testKernel ?? createDefaultKernel();
             Kernel.Bind<IAppBootstrapper>().ToConstant(this);
             Router = router ?? new RoutingState();
+
+            apiFactory = Kernel.TryGet<Func<IObservable<IPlayApi>>>("ApiFactory");
 
             RxApp.ConfigureServiceLocator(
                 (type, contract) => Kernel.Get(type, contract),
@@ -46,16 +50,17 @@ namespace Play.ViewModels
             blobCache.Invalidate("Username");
         }
 
-        public IObservable<IRestClient> GetAuthenticatedClient() { return getAuthenticatedClient().ToObservable(); }
-        async Task<IRestClient> getAuthenticatedClient()
+        public IObservable<IPlayApi> GetPlayApi() { return apiFactory != null ? apiFactory() : getPlayApi().ToObservable(); }
+        async Task<IPlayApi> getPlayApi()
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
+            var localMachine = Kernel.Get<IBlobCache>("LocalMachine");
             var baseUrl = await blobCache.GetObjectAsync<string>("BaseUrl");
             var userName = await blobCache.GetObjectAsync<string>("Username");
 
             var ret = new RestClient(baseUrl);
             ret.AddDefaultParameter("login", userName);
-            return ret;
+            return new PlayApi(ret, localMachine);
         }
 
         public static IKernel Kernel { get; protected set; }

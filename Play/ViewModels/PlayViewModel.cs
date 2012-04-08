@@ -15,8 +15,9 @@ namespace Play.ViewModels
     public interface IPlayViewModel : IRoutableViewModel, IDisposable
     {
         BitmapImage AlbumArt { get; }
-        NowPlaying Model { get; }
-        IRestClient AuthenticatedClient { get; }
+        Song Model { get; }
+        IPlayApi AuthenticatedClient { get; }
+        string ListenUrl { get; }
 
         ReactiveCommand TogglePlay { get; }
         ReactiveCommand Logout { get; }
@@ -35,14 +36,19 @@ namespace Play.ViewModels
             get { return _AlbumArt.Value; }
         }
 
-        ObservableAsPropertyHelper<NowPlaying> _Model;
-        public NowPlaying Model {
+        ObservableAsPropertyHelper<Song> _Model;
+        public Song Model {
             get { return _Model.Value; }
         }
 
-        ObservableAsPropertyHelper<IRestClient> _AuthenticatedClient;
-        public IRestClient AuthenticatedClient {
+        ObservableAsPropertyHelper<IPlayApi> _AuthenticatedClient;
+        public IPlayApi AuthenticatedClient {
             get { return _AuthenticatedClient.Value; }
+        }
+
+        ObservableAsPropertyHelper<string> _ListenUrl;
+        public string ListenUrl {
+            get { return _ListenUrl.Value; }
         }
 
         public ReactiveCommand TogglePlay { get; protected set; }
@@ -63,8 +69,8 @@ namespace Play.ViewModels
             });
 
             var newClient = this.NavigatedToMe()
-                .SelectMany(_ => bootstrapper.GetAuthenticatedClient())
-                .Catch(Observable.Return<IRestClient>(null));
+                .SelectMany(_ => bootstrapper.GetPlayApi())
+                .Catch(Observable.Return<IPlayApi>(null));
 
             newClient.ToProperty(this, x => x.AuthenticatedClient);
 
@@ -72,22 +78,27 @@ namespace Play.ViewModels
                 .Where(client => client == null)
                 .Subscribe(client => HostScreen.Router.Navigate.Execute(AppBootstrapper.Kernel.Get<IWelcomeViewModel>()));
 
+            newClient
+                .Where(x => x != null)
+                .SelectMany(x => x.ListenUrl())
+                .ToProperty(this, x => x.ListenUrl);
+
             var latestTrack = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(5), RxApp.TaskpoolScheduler)
                 .Where(_ => AuthenticatedClient != null)
-                .SelectMany(client => NowPlayingHelper.FetchCurrent(AuthenticatedClient))
-                .Catch(Observable.Return<NowPlaying>(null))
+                .SelectMany(_ => AuthenticatedClient.NowPlaying())
+                .Catch(Observable.Return<Song>(null))
                 .DistinctUntilChanged(x => x.id)
-                .Multicast(new Subject<NowPlaying>());
+                .Multicast(new Subject<Song>());
 
             _inner = latestTrack.Connect();
 
-            _Model = latestTrack
+            latestTrack
                 .Where(track => track != null)
                 .ToProperty(this, x => x.Model);
 
-            _AlbumArt = latestTrack
+            latestTrack
                 .Where(track => AuthenticatedClient != null && track != null)
-                .SelectMany(x => x.FetchImageForAlbum(AuthenticatedClient))
+                .SelectMany(x => AuthenticatedClient.FetchImageForAlbum(x))
                 .ToProperty(this, x => x.AlbumArt);
         }
 

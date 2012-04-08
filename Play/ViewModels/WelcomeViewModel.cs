@@ -110,8 +110,9 @@ namespace Play.ViewModels
         {
             var client = new RestClient(baseUrl);
             client.AddDefaultParameter("login", username);
-            return NowPlayingHelper.FetchCurrent(client, new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null))
-                .Select(_ => Unit.Default);
+
+            var api = new PlayApi(client, null);
+            return api.NowPlaying().Select(_ => Unit.Default);
         }
     }
 }

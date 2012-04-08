@@ -46,10 +46,10 @@ namespace Play.Views
             mediaElement.LoadedBehavior = MediaState.Manual;
 
             ViewModel.TogglePlay
-                .Where(_ => ViewModel.AuthenticatedClient != null)
-                .Subscribe(_ => {
+                .Where(_ => ViewModel.ListenUrl != null)
+                .Subscribe(nowPlayingUrl => {
                     if (!isPlaying) {
-                        mediaElement.Source = GetUriFromRestClient(ViewModel.AuthenticatedClient);
+                        mediaElement.Source = new Uri(ViewModel.ListenUrl);
                         mediaElement.Play();
                     } else {
                         mediaElement.Stop();
@@ -57,12 +57,6 @@ namespace Play.Views
                         
                     isPlaying = !isPlaying;
                 });
-        }
-
-        public static Uri GetUriFromRestClient(IRestClient authenticatedClient)
-        {
-            var uri = new Uri(authenticatedClient.BaseUrl);
-            return new Uri(String.Format("{0}:8000/listen", uri.GetLeftPart(UriPartial.Authority).Replace("https", "http")));
         }
 
         object IViewForViewModel.ViewModel {
