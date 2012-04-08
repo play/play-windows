@@ -7,12 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Akavache;
 using FluentAssertions;
+using Microsoft.Reactive.Testing;
 using Moq;
 using Ninject;
 using Ninject.MockingKernel.Moq;
 using Play.ViewModels;
 using ReactiveUI;
 using ReactiveUI.Routing;
+using ReactiveUI.Testing;
 using ReactiveUI.Xaml;
 using Xunit;
 
@@ -161,6 +163,42 @@ namespace Play.Tests.ViewModels
 
             errorThrown.Should().BeFalse();
 
+            kernel.Get<IScreen>().Router.GetCurrentViewModel().Should().Be(initialPage);
+        }
+    }
+
+    public class WelcomeViewModelIntegrationTests
+    {
+        const string dummyUser = "hubot";
+
+        [Fact]
+        public void SuccessfulLoginIntegrationTest()
+        {
+            var kernel = new MoqMockingKernel();
+            kernel.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
+
+            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
+            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+
+            var mock = kernel.GetMock<IScreen>();
+            var routingState = new RoutingState();
+            mock.Setup(x => x.Router).Returns(routingState);
+
+            var initialPage = kernel.Get<IRoutableViewModel>();
+            kernel.Get<IScreen>().Router.NavigateAndReset.Execute(initialPage);
+
+            var fixture = kernel.Get<IWelcomeViewModel>();
+            kernel.Get<IScreen>().Router.Navigate.Execute(fixture);
+
+            fixture.BaseUrl = IntegrationTestUrl.Current;
+            fixture.Username = dummyUser;
+            fixture.OkButton.Execute(null);
+
+            kernel.Get<IScreen>().Router.ViewModelObservable().Skip(1)
+                .Timeout(TimeSpan.FromSeconds(3.0), RxApp.TaskpoolScheduler)
+                .First();
+
+            fixture.ErrorMessage.Should().BeNull();
             kernel.Get<IScreen>().Router.GetCurrentViewModel().Should().Be(initialPage);
         }
     }
