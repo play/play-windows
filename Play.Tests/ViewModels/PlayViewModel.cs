@@ -85,6 +85,7 @@ namespace Play.Tests.ViewModels
             var kernel = new MoqMockingKernel();
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
             kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("UserAccount");
 
             var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
             kernel.Bind<ISecureBlobCache>().ToConstant(cache);
@@ -98,10 +99,11 @@ namespace Play.Tests.ViewModels
                 var vm = app.Router.GetCurrentViewModel() as IPlayViewModel;
                 vm.Should().NotBeNull();
 
-                // XXX: Why do I have to do this
-                Thread.Sleep(100);
+                var result = vm.WhenAny(x => x.ListenUrl, x => x.Value)
+                    .Where(x => x != null)
+                    .First();
 
-                vm.ListenUrl.Should().Be("http://example.com:8000/listen");
+                result.Should().Be("http://example.com:8000/listen");
             }
         }       
     }
