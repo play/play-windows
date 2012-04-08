@@ -46,7 +46,7 @@ namespace Play.ViewModels
             HostScreen = bootstrapper;
             TogglePlay = new ReactiveCommand();
 
-            var latestTrack = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(5), RxApp.DeferredScheduler)
+            var latestTrack = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(5), RxApp.TaskpoolScheduler)
                 .Where(_ => authenticatedClient != null)
                 .SelectMany(client => NowPlayingHelper.FetchCurrent(authenticatedClient))
                 .DistinctUntilChanged(x => x.id)
@@ -65,7 +65,6 @@ namespace Play.ViewModels
             this.NavigatedToMe()
                 .SelectMany(_ => bootstrapper.GetAuthenticatedClient())
                 .Catch(Observable.Return<IRestClient>(null))
-                .Repeat()
                 .Subscribe(client => {
                     if (client == null) {
                         authenticatedClient = null;
