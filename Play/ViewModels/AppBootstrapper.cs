@@ -72,11 +72,19 @@ namespace Play.ViewModels
             ret.Bind<IScreen>().ToConstant(this);
             ret.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
             ret.Bind<IPlayViewModel>().To<PlayViewModel>();
+            ret.Bind<IViewForViewModel<WelcomeViewModel>>().To<WelcomeView>();
+            ret.Bind<IViewForViewModel<PlayViewModel>>().To<PlayView>();
+
+#if DEBUG
+            var testBlobCache = new TestBlobCache();
+            ret.Bind<IBlobCache>().ToConstant(testBlobCache).Named("LocalMachine");
+            ret.Bind<IBlobCache>().ToConstant(testBlobCache).Named("UserAccount");
+            ret.Bind<ISecureBlobCache>().ToConstant(testBlobCache);
+#else
             ret.Bind<ISecureBlobCache>().ToConstant(BlobCache.Secure);
             ret.Bind<IBlobCache>().ToConstant(BlobCache.LocalMachine).Named("LocalMachine");
             ret.Bind<IBlobCache>().ToConstant(BlobCache.UserAccount).Named("UserAccount");
-            ret.Bind<IViewForViewModel<WelcomeViewModel>>().To<WelcomeView>();
-            ret.Bind<IViewForViewModel<PlayViewModel>>().To<PlayView>();
+#endif
 
             return ret;
         }
