@@ -62,7 +62,7 @@ namespace Play.Views
         public static Uri GetUriFromRestClient(IRestClient authenticatedClient)
         {
             var uri = new Uri(authenticatedClient.BaseUrl);
-            return new Uri(String.Format("{0}:8000/listen", uri.GetLeftPart(UriPartial.Authority)));
+            return new Uri(String.Format("{0}:8000/listen", uri.GetLeftPart(UriPartial.Authority).Replace("https", "http")));
         }
 
         object IViewForViewModel.ViewModel {
