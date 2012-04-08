@@ -17,6 +17,7 @@ namespace Play.ViewModels
     public interface IAppBootstrapper : IScreen
     {
         IObservable<IRestClient> GetAuthenticatedClient();
+        void EraseCredentials();
     }
 
     public class AppBootstrapper : ReactiveObject, IAppBootstrapper
@@ -36,6 +37,13 @@ namespace Play.ViewModels
                 (type, contract) => Kernel.GetAll(type, contract));
 
             Router.Navigate.Execute(Kernel.Get<IPlayViewModel>());
+        }
+
+        public void EraseCredentials()
+        {
+            var blobCache = Kernel.Get<ISecureBlobCache>();
+            blobCache.Invalidate("BaseUrl");
+            blobCache.Invalidate("Username");
         }
 
         public IObservable<IRestClient> GetAuthenticatedClient() { return getAuthenticatedClient().ToObservable(); }

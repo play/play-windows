@@ -14,10 +14,12 @@ namespace Play.ViewModels
 {
     public interface IPlayViewModel : IRoutableViewModel, IDisposable
     {
-        ReactiveCommand TogglePlay { get; }
         BitmapImage AlbumArt { get; }
         NowPlaying Model { get; }
         IRestClient AuthenticatedClient { get; }
+
+        ReactiveCommand TogglePlay { get; }
+        ReactiveCommand Logout { get; }
     }
 
     public class PlayViewModel : ReactiveObject, IPlayViewModel
@@ -27,8 +29,6 @@ namespace Play.ViewModels
         }
 
         public IScreen HostScreen { get; protected set; }
-
-        public ReactiveCommand TogglePlay { get; protected set; }
 
         ObservableAsPropertyHelper<BitmapImage> _AlbumArt;
         public BitmapImage AlbumArt {
@@ -45,6 +45,9 @@ namespace Play.ViewModels
             get { return _AuthenticatedClient.Value; }
         }
 
+        public ReactiveCommand TogglePlay { get; protected set; }
+        public ReactiveCommand Logout { get; protected set; }
+
         IDisposable _inner;
 
         [Inject]
@@ -52,6 +55,12 @@ namespace Play.ViewModels
         {
             HostScreen = bootstrapper;
             TogglePlay = new ReactiveCommand();
+            Logout = new ReactiveCommand();
+
+            Logout.Subscribe(_ => {
+                bootstrapper.EraseCredentials();
+                HostScreen.Router.Navigate.Execute(AppBootstrapper.Kernel.Get<IWelcomeViewModel>());
+            });
 
             var newClient = this.NavigatedToMe()
                 .SelectMany(_ => bootstrapper.GetAuthenticatedClient())
