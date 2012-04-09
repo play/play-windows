@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -12,7 +13,7 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public interface IPlayViewModel : IRoutableViewModel, IDisposable
+    public interface IPlayViewModel : IRoutableViewModel
     {
         BitmapImage AlbumArt { get; }
         Song Model { get; }
@@ -54,61 +55,25 @@ namespace Play.ViewModels
         public ReactiveCommand TogglePlay { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
 
-        IDisposable _inner;
-
         [Inject]
-        public PlayViewModel(IAppBootstrapper bootstrapper)
+        public PlayViewModel(IScreen screen, ILoginMethods loginMethods)
         {
-            HostScreen = bootstrapper;
+            HostScreen = screen;
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
 
-            Logout.Subscribe(_ => {
-                bootstrapper.EraseCredentials();
-                HostScreen.Router.Navigate.Execute(AppBootstrapper.Kernel.Get<IWelcomeViewModel>());
+            this.WhenNavigatedTo(() => {
+                var playApi = loginMethods.CurrentAuthenticatedClient;
+                if (playApi == null) {
+                    loginMethods.EraseCredentialsAndNavigateToLogin();
+                    return null;
+                }
+
+                playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
+                return null;
             });
 
-            var newClient = this.NavigatedToMe()
-                .SelectMany(_ => bootstrapper.GetPlayApi())
-                .Catch(Observable.Return<IPlayApi>(null));
-
-            newClient.ToProperty(this, x => x.AuthenticatedClient);
-
-            newClient
-                .Where(client => client == null)
-                .Subscribe(client => HostScreen.Router.Navigate.Execute(AppBootstrapper.Kernel.Get<IWelcomeViewModel>()));
-
-            newClient
-                .Where(x => x != null)
-                .SelectMany(x => x.ListenUrl())
-                .ToProperty(this, x => x.ListenUrl);
-
-            var latestTrack = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(5), RxApp.TaskpoolScheduler)
-                .Where(_ => AuthenticatedClient != null)
-                .SelectMany(_ => AuthenticatedClient.NowPlaying())
-                .Catch(Observable.Return<Song>(null))
-                .DistinctUntilChanged(x => x.id)
-                .Multicast(new Subject<Song>());
-
-            _inner = latestTrack.Connect();
-
-            latestTrack
-                .Where(track => track != null)
-                .ToProperty(this, x => x.Model);
-
-            latestTrack
-                .Where(track => AuthenticatedClient != null && track != null)
-                .SelectMany(x => AuthenticatedClient.FetchImageForAlbum(x))
-                .Catch(Observable.Return<BitmapImage>(null))
-                .ToProperty(this, x => x.AlbumArt);
-        }
-
-        public void Dispose()
-        {
-            var disp = Interlocked.Exchange(ref _inner, null);
-            if (disp != null) {
-                disp.Dispose();
-            }
+            Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
         }
     }
 }
