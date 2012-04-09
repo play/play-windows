@@ -13,6 +13,7 @@ using Play.Models;
 using Play.ViewModels;
 using ReactiveUI;
 using ReactiveUI.Routing;
+using RestSharp;
 using Xunit;
 using Moq;
 
@@ -29,11 +30,15 @@ namespace Play.Tests.ViewModels
             var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
             kernel.Bind<ISecureBlobCache>().ToConstant(cache);
 
-            var app = new AppBootstrapper(kernel);
-            using (var fixture = kernel.Get<IPlayViewModel>()) {
-                app.Router.Navigate.Execute(fixture);
-                (app.Router.GetCurrentViewModel() is IWelcomeViewModel).Should().BeTrue();
-            }
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.EraseCredentialsAndNavigateToLogin()).Verifiable();
+
+            var router = new RoutingState();
+            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
+
+            var fixture = kernel.Get<IPlayViewModel>();
+            router.Navigate.Execute(fixture);
+            kernel.GetMock<ILoginMethods>().Verify(x => x.EraseCredentialsAndNavigateToLogin(), Times.Once());
         }
 
         [Fact]
@@ -41,18 +46,22 @@ namespace Play.Tests.ViewModels
         {
             var kernel = new MoqMockingKernel();
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
-            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
+            kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
 
-            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
-            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
-            cache.InsertObject("BaseUrl", "https://example.com");
-            cache.InsertObject("Username", "hubot");
+            var router = new RoutingState();
+            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
-            var app = new AppBootstrapper(kernel);
-            using (var fixture = kernel.Get<IPlayViewModel>()) {
-                app.Router.Navigate.Execute(fixture);
-                (app.Router.GetCurrentViewModel() is IPlayViewModel).Should().BeTrue();
-            }
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.EraseCredentialsAndNavigateToLogin())
+                .Callback(() => router.Navigate.Execute(kernel.Get<IWelcomeViewModel>()));
+
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.CurrentAuthenticatedClient)
+                .Returns(kernel.Get<IPlayApi>());
+
+            var fixture = kernel.Get<IPlayViewModel>();
+            router.Navigate.Execute(fixture);
+            (router.GetCurrentViewModel() is IPlayViewModel).Should().BeTrue();
         }
 
         [Fact]
@@ -60,51 +69,51 @@ namespace Play.Tests.ViewModels
         {
             var kernel = new MoqMockingKernel();
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
-            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
+            kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
 
-            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
-            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+            var router = new RoutingState();
+            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
-            cache.InsertObject("BaseUrl", "https://example.com");
-            cache.InsertObject("Username", "hubot");
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.EraseCredentialsAndNavigateToLogin())
+                .Callback(() => router.Navigate.Execute(kernel.Get<IWelcomeViewModel>()));
 
-            var app = new AppBootstrapper(kernel);
-            using (var fixture = kernel.Get<IPlayViewModel>()) {
-                app.Router.Navigate.Execute(fixture);
-                var vm = app.Router.GetCurrentViewModel();
-                (vm is IPlayViewModel).Should().BeTrue();
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.CurrentAuthenticatedClient)
+                .Returns(kernel.Get<IPlayApi>());
 
-                fixture.Logout.Execute(null);
-                (app.Router.GetCurrentViewModel() is IWelcomeViewModel).Should().BeTrue();
-            }
-        } 
+            var fixture = kernel.Get<IPlayViewModel>();
+            router.Navigate.Execute(fixture);
+            fixture.Logout.Execute(null);
+
+            (router.GetCurrentViewModel() is IPlayViewModel).Should().BeFalse();
+        }
 
         [Fact]
         public void ListenUrlShouldCorrespondToActualUrl()
         {
             var kernel = new MoqMockingKernel();
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
+            kernel.Bind<IPlayApi>().To<PlayApi>();
             kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
-            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("UserAccount");
 
-            var cache = new TestBlobCache(null, (IEnumerable<KeyValuePair<string, byte[]>>)null);
-            kernel.Bind<ISecureBlobCache>().ToConstant(cache);
+            var client = new RestClient("https://example.com");
+            kernel.Bind<IRestClient>().ToConstant(client);
 
-            cache.InsertObject("BaseUrl", "https://example.com");
-            cache.InsertObject("Username", "hubot");
+            var router = new RoutingState();
+            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
-            var app = new AppBootstrapper(kernel);
-            using (var fixture = kernel.Get<IPlayViewModel>()) {
-                app.Router.Navigate.Execute(fixture);
-                var vm = app.Router.GetCurrentViewModel() as IPlayViewModel;
-                vm.Should().NotBeNull();
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.CurrentAuthenticatedClient).Returns(kernel.Get<IPlayApi>());
 
-                var result = vm.WhenAny(x => x.ListenUrl, x => x.Value)
-                    .Where(x => x != null)
-                    .First();
+            var fixture = kernel.Get<IPlayViewModel>();
+            router.Navigate.Execute(fixture);
 
-                result.Should().Be("http://example.com:8000/listen");
-            }
-        }       
+            var result = fixture.WhenAny(x => x.ListenUrl, x => x.Value)
+                .Where(x => x != null)
+                .First();
+
+            result.Should().Be("http://example.com:8000/listen");
+        }
     }
 }
