@@ -15,11 +15,13 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public interface IAppBootstrapper : IScreen
+    public interface ILoginMethods : IReactiveNotifyPropertyChanged
     {
-        IObservable<IPlayApi> GetPlayApi();
-        void EraseCredentials();
+        void EraseCredentialsAndNavigateToLogin();
+        IPlayApi CurrentAuthenticatedClient { get; set; }
     }
+
+    public interface IAppBootstrapper : IScreen, ILoginMethods { }
 
     public class AppBootstrapper : ReactiveObject, IAppBootstrapper
     {
@@ -43,11 +45,22 @@ namespace Play.ViewModels
             Router.Navigate.Execute(Kernel.Get<IPlayViewModel>());
         }
 
-        public void EraseCredentials()
+        public static IKernel Kernel { get; protected set; }
+
+        IPlayApi _CurrentAuthenticatedClient;
+        public IPlayApi CurrentAuthenticatedClient {
+            get { return _CurrentAuthenticatedClient; }
+            set { this.RaiseAndSetIfChanged(x => x.CurrentAuthenticatedClient, value); }
+        }
+
+        public void EraseCredentialsAndNavigateToLogin()
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
+
             blobCache.Invalidate("BaseUrl");
             blobCache.Invalidate("Username");
+
+            Router.Navigate.Execute(Kernel.Get<IWelcomeViewModel>());
         }
 
         public IObservable<IPlayApi> GetPlayApi() { return apiFactory != null ? apiFactory() : getPlayApi().ToObservable(); }
@@ -62,8 +75,6 @@ namespace Play.ViewModels
             ret.AddDefaultParameter("login", userName);
             return new PlayApi(ret, localMachine);
         }
-
-        public static IKernel Kernel { get; protected set; }
 
         IKernel createDefaultKernel()
         {
