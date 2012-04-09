@@ -143,7 +143,28 @@
         <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.NavigatedToMe(ReactiveUI.Routing.IRoutableViewModel)">
             <summary>
             This Observable fires whenever the current ViewModel is navigated to.
+            Note that this method is difficult to use directly without leaking 
+            memory, you most likely want to use WhenNavigatedTo.
             </summary>
+        </member>
+        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.NavigatedFromMe(ReactiveUI.Routing.IRoutableViewModel)">
+            <summary>
+            This Observable fires whenever the current ViewModel is navigated 
+            away from.  Note that this method is difficult to use directly 
+            without leaking memory, you most likely want to use WhenNavigatedTo.
+            </summary>
+        </member>
+        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.WhenNavigatedTo(ReactiveUI.Routing.IRoutableViewModel,System.Func{System.IDisposable})">
+            <summary>
+            This method allows you to set up connections that only operate 
+            while the ViewModel has focus, and cleans up when the ViewModel
+            loses focus.
+            </summary>
+            <param name="onNavigatedTo">Called when the ViewModel is navigated
+            to - return an IDisposable that cleans up all of the things that are
+            configured in the method.</param>
+            <returns>An IDisposable that lets you disconnect the entire process
+            earlier than normal.</returns>
         </member>
         <member name="T:ReactiveUI.Routing.RoutedViewHost">
             <summary>
