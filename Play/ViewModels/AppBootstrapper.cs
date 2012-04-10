@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Text;
@@ -17,8 +18,11 @@ namespace Play.ViewModels
 {
     public interface ILoginMethods : IReactiveNotifyPropertyChanged
     {
-        void EraseCredentialsAndNavigateToLogin();
         IPlayApi CurrentAuthenticatedClient { get; set; }
+
+        void EraseCredentialsAndNavigateToLogin();
+        void SaveCredentials(string baseUrl, string username);
+        IObservable<IPlayApi> LoadCredentials();
     }
 
     public interface IAppBootstrapper : IScreen, ILoginMethods { }
@@ -42,7 +46,14 @@ namespace Play.ViewModels
                 (type, contract) => Kernel.Get(type, contract),
                 (type, contract) => Kernel.GetAll(type, contract));
 
-            Router.Navigate.Execute(Kernel.Get<IPlayViewModel>());
+            LoadCredentials().Subscribe(
+                x => {
+                    CurrentAuthenticatedClient = x;
+                    Router.Navigate.Execute(Kernel.Get<IPlayViewModel>());
+                }, ex => {
+                    this.Log().WarnException("Failed to load credentials, going to login screen", ex);
+                    Router.Navigate.Execute(Kernel.Get<IPlayViewModel>());
+                });
         }
 
         public static IKernel Kernel { get; protected set; }
@@ -52,6 +63,10 @@ namespace Play.ViewModels
             get { return _CurrentAuthenticatedClient; }
             set { this.RaiseAndSetIfChanged(x => x.CurrentAuthenticatedClient, value); }
         }
+        
+        /*
+         * ILoginMethods
+         */
 
         public void EraseCredentialsAndNavigateToLogin()
         {
@@ -63,17 +78,36 @@ namespace Play.ViewModels
             Router.Navigate.Execute(Kernel.Get<IWelcomeViewModel>());
         }
 
-        public IObservable<IPlayApi> GetPlayApi() { return apiFactory != null ? apiFactory() : getPlayApi().ToObservable(); }
-        async Task<IPlayApi> getPlayApi()
+        public void SaveCredentials(string baseUrl, string username)
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
-            var localMachine = Kernel.Get<IBlobCache>("LocalMachine");
+
+            blobCache.InsertObject("BaseUrl", baseUrl);
+            blobCache.InsertObject("Username", username);
+
+            CurrentAuthenticatedClient = createPlayApiFromCreds(baseUrl, username);
+        }
+
+        public IObservable<IPlayApi> LoadCredentials() { return apiFactory != null ? apiFactory() : loadCredentials().ToObservable(); }
+        async Task<IPlayApi> loadCredentials()
+        {
+            var blobCache = Kernel.Get<ISecureBlobCache>();
             var baseUrl = await blobCache.GetObjectAsync<string>("BaseUrl");
             var userName = await blobCache.GetObjectAsync<string>("Username");
 
-            var ret = new RestClient(baseUrl);
-            ret.AddDefaultParameter("login", userName);
-            return new PlayApi(ret, localMachine);
+            var ret = createPlayApiFromCreds(baseUrl, userName);
+            CurrentAuthenticatedClient = ret;
+            return ret;
+        }
+
+        PlayApi createPlayApiFromCreds(string baseUrl, string userName)
+        {
+            var localMachine = Kernel.Get<IBlobCache>("LocalMachine");
+            var rc = new RestClient(baseUrl);
+            rc.AddDefaultParameter("login", userName);
+
+            var ret = new PlayApi(rc, localMachine);
+            return ret;
         }
 
         IKernel createDefaultKernel()

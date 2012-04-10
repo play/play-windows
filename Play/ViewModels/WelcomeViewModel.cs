@@ -54,7 +54,7 @@ namespace Play.ViewModels
         [Inject]
         public WelcomeViewModel(
             IScreen screen, 
-            ISecureBlobCache credCache,
+            ILoginMethods loginMethods,
             [Named("connectToServer")] [Optional] Func<string, string, IObservable<Unit>> connectToServerMock)
         {
             HostScreen = screen;
@@ -75,8 +75,7 @@ namespace Play.ViewModels
                         return;
                     }
 
-                    credCache.InsertObject("BaseUrl", BaseUrl);
-                    credCache.InsertObject("Username", Username);
+                    loginMethods.SaveCredentials(BaseUrl, Username);
                     screen.Router.NavigateBack.Execute(null);
                 });
 
