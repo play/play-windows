@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,9 @@ namespace Play.Models
         IObservable<Song> NowPlaying();
         IObservable<BitmapImage> FetchImageForAlbum(Song song);
         IObservable<string> ListenUrl();
+        IObservable<List<Song>> Queue();
+        IObservable<Unit> Star(Song song);
+        IObservable<Unit> Unstar(Song song);
     }
 
     public class PlayApi : IPlayApi, IEnableLogger
@@ -36,6 +40,28 @@ namespace Play.Models
         {
             var rq = new RestRequest("now_playing");
             return client.RequestAsync<Song>(rq).Select(x => x.Data);
+        }
+
+        public IObservable<List<Song>> Queue()
+        {
+            var rq = new RestRequest("queue");
+            return client.RequestAsync<List<Song>>(rq).Select(x => x.Data);
+        }
+
+        public IObservable<Unit> Star(Song song)
+        {
+            var rq = new RestRequest("star") {Method = Method.POST};
+            rq.AddParameter("id", song.id);
+
+            return client.RequestAsync(rq).Select(_ => Unit.Default);
+        }
+
+        public IObservable<Unit> Unstar(Song song)
+        {
+            var rq = new RestRequest("star") {Method = Method.DELETE};
+            rq.AddParameter("id", song.id);
+
+            return client.RequestAsync(rq).Select(_ => Unit.Default);
         }
 
         public IObservable<BitmapImage> FetchImageForAlbum(Song song)
