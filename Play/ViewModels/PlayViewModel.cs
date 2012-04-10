@@ -62,6 +62,9 @@ namespace Play.ViewModels
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
 
+            Observable.Never<Song>().ToProperty(this, x => x.Model);
+            Observable.Never<BitmapImage>().ToProperty(this, x => x.AlbumArt);
+
             this.WhenNavigatedTo(() => {
                 var playApi = loginMethods.CurrentAuthenticatedClient;
                 if (playApi == null) {
@@ -70,7 +73,16 @@ namespace Play.ViewModels
                 }
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
-                return null;
+
+                var model = new Subject<Song>();
+                var ret = Observable.Timer(TimeSpan.FromMinutes(5.0), RxApp.TaskpoolScheduler)
+                    .SelectMany(_ => playApi.NowPlaying())
+                    .Subscribe(model);
+
+                model.ToProperty(this, x => x.Model);
+
+                model.SelectMany(playApi.FetchImageForAlbum).ToProperty(this, x => x.AlbumArt);
+                return ret;
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());

@@ -81,6 +81,7 @@ namespace Play.ViewModels
             var ret = new StandardKernel();
 
             ret.Bind<IScreen>().ToConstant(this);
+            ret.Bind<ILoginMethods>().ToConstant(this);
             ret.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
             ret.Bind<IPlayViewModel>().To<PlayViewModel>();
             ret.Bind<IViewForViewModel<WelcomeViewModel>>().To<WelcomeView>();
@@ -98,6 +99,18 @@ namespace Play.ViewModels
 #endif
 
             return ret;
+        }
+    }
+
+    public static class LoginMethodsMixins
+    {
+        public static void LoadAuthenticatedUserFromCache(ILoginMethods login, ISecureBlobCache loginCache)
+        {
+            Observable.Zip(loginCache.GetObjectAsync<string>("BaseUrl"), loginCache.GetObjectAsync<string>("Username"),
+                (url, name) => new Tuple<string, string>(url, name))
+                .Catch(Observable.Return<Tuple<string, string>>(null))
+                .Subscribe(x => {
+                });
         }
     }
 }
