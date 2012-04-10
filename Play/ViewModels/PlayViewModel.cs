@@ -83,7 +83,7 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(5.0), RxApp.TaskpoolScheduler)
+                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(1.5), RxApp.TaskpoolScheduler)
                     .Multicast(new Subject<long>());
 
                 var nowPlaying = timer.SelectMany(_ => playApi.NowPlaying());
