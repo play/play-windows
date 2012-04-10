@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -20,6 +21,18 @@ namespace Play.Models
         public string artist { get; set; }
         public string name { get; set; }
         public string id { get; set; }
+// ReSharper restore InconsistentNaming
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+    }
+
+    public class SongQueue
+    {
+// ReSharper disable InconsistentNaming
+        public List<Song> songs { get; set; }
 // ReSharper restore InconsistentNaming
 
         public override string ToString()

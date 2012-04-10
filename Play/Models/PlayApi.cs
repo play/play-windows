@@ -45,7 +45,9 @@ namespace Play.Models
         public IObservable<List<Song>> Queue()
         {
             var rq = new RestRequest("queue");
-            return client.RequestAsync<List<Song>>(rq).Select(x => x.Data);
+            return client.RequestAsync<SongQueue>(rq).Select(x => {
+                return x.Data.songs.ToList();
+            });
         }
 
         public IObservable<Unit> Star(Song song)
