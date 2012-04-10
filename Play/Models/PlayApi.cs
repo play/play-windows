@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace Play.Models
         IObservable<string> ListenUrl();
     }
 
-    public class PlayApi : IPlayApi
+    public class PlayApi : IPlayApi, IEnableLogger
     {
         readonly IRestClient client;
         readonly IBlobCache cache;
@@ -39,9 +40,12 @@ namespace Play.Models
 
         public IObservable<BitmapImage> FetchImageForAlbum(Song song)
         {
-            var url = String.Format("images/art/{0}.png", song.id);
-            var rq = new RestRequest();
-            return cache.LoadImageFromUrl(client.BuildUri(rq).ToString());
+            var user = client.DefaultParameters.First(x => x.Name == "login").Value;
+            var rq = new RestRequest(String.Format("images/art/{0}.png?login={1}", song.id, user));
+
+            var fullUrl = client.BuildUri(rq).ToString();
+            this.Log().Info("Fetching URL for image: {0}", fullUrl);
+            return cache.LoadImageFromUrl(fullUrl);
         }
 
         public IObservable<string> ListenUrl()
