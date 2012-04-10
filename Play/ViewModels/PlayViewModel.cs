@@ -83,10 +83,9 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(1.5), RxApp.TaskpoolScheduler)
-                    .Multicast(new Subject<long>());
+                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(1.5), RxApp.TaskpoolScheduler).Multicast(new Subject<long>());
 
-                var nowPlaying = timer.SelectMany(_ => playApi.NowPlaying());
+                var nowPlaying = timer.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
                 timer.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
 
                 nowPlaying.ToProperty(this, x => x.CurrentSong);
@@ -95,7 +94,7 @@ namespace Play.ViewModels
                     .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
                     .ToProperty(this, x => x.AlbumArt);
 
-                return timer.Connect();
+                return new CompositeDisposable(timer.Connect(), nowPlaying.Connect());
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
