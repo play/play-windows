@@ -16,7 +16,7 @@ namespace Play.ViewModels
     public interface IPlayViewModel : IRoutableViewModel
     {
         BitmapImage AlbumArt { get; }
-        Song Model { get; }
+        Song CurrentSong { get; }
         IPlayApi AuthenticatedClient { get; }
         string ListenUrl { get; }
 
@@ -37,9 +37,9 @@ namespace Play.ViewModels
             get { return _AlbumArt.Value; }
         }
 
-        ObservableAsPropertyHelper<Song> _Model;
-        public Song Model {
-            get { return _Model.Value; }
+        ObservableAsPropertyHelper<Song> _CurrentSong;
+        public Song CurrentSong {
+            get { return _CurrentSong.Value; }
         }
 
         ObservableAsPropertyHelper<IPlayApi> _AuthenticatedClient;
@@ -62,7 +62,7 @@ namespace Play.ViewModels
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
 
-            Observable.Never<Song>().ToProperty(this, x => x.Model);
+            Observable.Never<Song>().ToProperty(this, x => x.CurrentSong);
             Observable.Never<BitmapImage>().ToProperty(this, x => x.AlbumArt);
 
             this.WhenNavigatedTo(() => {
@@ -79,7 +79,7 @@ namespace Play.ViewModels
                     .SelectMany(_ => playApi.NowPlaying())
                     .Subscribe(model);
 
-                model.ToProperty(this, x => x.Model);
+                model.ToProperty(this, x => x.CurrentSong);
 
                 model.SelectMany(playApi.FetchImageForAlbum)
                     .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
