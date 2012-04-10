@@ -15,7 +15,7 @@ using Xunit;
 
 namespace Play.Tests.Models
 {
-    public class NowPlayingTests : IEnableLogger
+    public class PlayApiTests : IEnableLogger
     {
         [Fact]
         public void FetchNowPlayingIntegrationTest()
