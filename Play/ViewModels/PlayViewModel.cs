@@ -81,7 +81,9 @@ namespace Play.ViewModels
 
                 model.ToProperty(this, x => x.Model);
 
-                model.SelectMany(playApi.FetchImageForAlbum).ToProperty(this, x => x.AlbumArt);
+                model.SelectMany(playApi.FetchImageForAlbum)
+                    .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
+                    .ToProperty(this, x => x.AlbumArt);
                 return ret;
             });
 
