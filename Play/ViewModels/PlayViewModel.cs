@@ -75,7 +75,7 @@ namespace Play.ViewModels
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
                 var model = new Subject<Song>();
-                var ret = Observable.Timer(TimeSpan.FromMinutes(5.0), RxApp.TaskpoolScheduler)
+                var ret = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(5.0), RxApp.TaskpoolScheduler)
                     .SelectMany(_ => playApi.NowPlaying())
                     .Subscribe(model);
 
