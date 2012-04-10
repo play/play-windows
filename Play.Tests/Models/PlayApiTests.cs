@@ -35,5 +35,24 @@ namespace Play.Tests.Models
             this.Log().Info(result.ToString());
             result.id.Should().NotBeNullOrEmpty();
         }
+
+        [Fact]
+        public void FetchQueueIntegrationTest()
+        {
+            var kernel = new MoqMockingKernel();
+            var client = new RestClient(IntegrationTestUrl.Current);
+
+            client.AddDefaultParameter("login", "xpaulbettsx");
+            kernel.Bind<IBlobCache>().To<TestBlobCache>();
+
+            var api = new PlayApi(client, kernel.Get<IBlobCache>());
+
+            var result = api.Queue()
+                .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
+                .First();
+
+            this.Log().Info(String.Join(",", result.Select(x => x.name)));
+            result.Count.Should().BeGreaterThan(2);
+        }
     }
 }
