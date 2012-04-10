@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -15,10 +16,11 @@ namespace Play.ViewModels
 {
     public interface IPlayViewModel : IRoutableViewModel
     {
-        BitmapImage AlbumArt { get; }
-        Song Model { get; }
         IPlayApi AuthenticatedClient { get; }
+        BitmapImage AlbumArt { get; }
         string ListenUrl { get; }
+        Song CurrentSong { get; }
+        IEnumerable<Song> Queue { get; }
 
         ReactiveCommand TogglePlay { get; }
         ReactiveCommand Logout { get; }
@@ -37,9 +39,14 @@ namespace Play.ViewModels
             get { return _AlbumArt.Value; }
         }
 
-        ObservableAsPropertyHelper<Song> _Model;
-        public Song Model {
-            get { return _Model.Value; }
+        ObservableAsPropertyHelper<Song> _CurrentSong;
+        public Song CurrentSong {
+            get { return _CurrentSong.Value; }
+        }
+
+        ObservableAsPropertyHelper<IEnumerable<Song>> _Queue;
+        public IEnumerable<Song> Queue {
+            get { return _Queue.Value; }
         }
 
         ObservableAsPropertyHelper<IPlayApi> _AuthenticatedClient;
@@ -62,7 +69,9 @@ namespace Play.ViewModels
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
 
-            Observable.Never<Song>().ToProperty(this, x => x.Model);
+            // XXX: God I hate that I have to do this
+            Observable.Never<Song>().ToProperty(this, x => x.CurrentSong);
+            Observable.Never<IEnumerable<Song>>().ToProperty(this, x => x.Queue);
             Observable.Never<BitmapImage>().ToProperty(this, x => x.AlbumArt);
 
             this.WhenNavigatedTo(() => {
@@ -74,17 +83,18 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var model = new Subject<Song>();
-                var ret = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(5.0), RxApp.TaskpoolScheduler)
-                    .SelectMany(_ => playApi.NowPlaying())
-                    .Subscribe(model);
+                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(1.5), RxApp.TaskpoolScheduler).Multicast(new Subject<long>());
 
-                model.ToProperty(this, x => x.Model);
+                var nowPlaying = timer.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
+                timer.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
 
-                model.SelectMany(playApi.FetchImageForAlbum)
+                nowPlaying.ToProperty(this, x => x.CurrentSong);
+
+                nowPlaying.SelectMany(playApi.FetchImageForAlbum)
                     .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
                     .ToProperty(this, x => x.AlbumArt);
-                return ret;
+
+                return new CompositeDisposable(timer.Connect(), nowPlaying.Connect());
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
