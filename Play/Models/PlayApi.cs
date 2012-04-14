@@ -11,6 +11,7 @@ using Akavache;
 using Ninject;
 using ReactiveUI;
 using RestSharp;
+using RestSharp.Contrib;
 
 namespace Play.Models
 {
@@ -22,6 +23,9 @@ namespace Play.Models
         IObservable<List<Song>> Queue();
         IObservable<Unit> Star(Song song);
         IObservable<Unit> Unstar(Song song);
+        IObservable<List<Song>> Search(string query);
+        IObservable<List<Song>> AllSongsForArtist(string name);
+        IObservable<List<Song>> AllSongsOnAlbum(string artist, string album);
     }
 
     public class PlayApi : IPlayApi, IEnableLogger
@@ -74,6 +78,33 @@ namespace Play.Models
             var fullUrl = client.BuildUri(rq).ToString();
             this.Log().Info("Fetching URL for image: {0}", fullUrl);
             return cache.LoadImageFromUrl(fullUrl);
+        }
+
+        public IObservable<List<Song>> Search(string query)
+        {
+            var rq = new RestRequest("search");
+            rq.AddParameter("q", query);
+
+            return client.RequestAsync<SongQueue>(rq).Select(x => x.Data.songs);
+        }
+
+        public IObservable<List<Song>> AllSongsForArtist(string name)
+        {
+            // NB: https://github.com/play/play/issues/135
+            var rq = new RestRequest(String.Format("artist/{0}", 
+                HttpUtility.UrlEncode(name).Replace("+", "%20")));
+
+            return client.RequestAsync<SongQueue>(rq).Select(x => x.Data.songs);
+        }
+
+        public IObservable<List<Song>> AllSongsOnAlbum(string artist, string album)
+        {
+            // NB: https://github.com/play/play/issues/135
+            var rq = new RestRequest(String.Format("artist/{0}/album/{1}", 
+                HttpUtility.UrlEncode(artist).Replace("+", "%20"), 
+                HttpUtility.UrlEncode(album).Replace("+", "%20")));
+
+            return client.RequestAsync<SongQueue>(rq).Select(x => x.Data.songs);
         }
 
         public IObservable<string> ListenUrl()

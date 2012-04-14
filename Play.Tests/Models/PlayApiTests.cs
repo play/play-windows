@@ -54,5 +54,63 @@ namespace Play.Tests.Models
             this.Log().Info(String.Join(",", result.Select(x => x.name)));
             result.Count.Should().BeGreaterThan(2);
         }
+
+        [Fact]
+        public void MakeSearchIntegrationTest()
+        {
+            var kernel = new MoqMockingKernel();
+            var client = new RestClient(IntegrationTestUrl.Current);
+
+            client.AddDefaultParameter("login", "xpaulbettsx");
+            kernel.Bind<IBlobCache>().To<TestBlobCache>();
+
+            var api = new PlayApi(client, kernel.Get<IBlobCache>());
+
+            var result = api.Search("LCD Soundsystem")
+                .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
+                .First();
+
+            this.Log().Info(String.Join(",", result.Select(x => x.name)));
+            result.Count.Should().BeGreaterThan(2);
+        }
+
+        [Fact]
+        public void MakeArtistSearchIntegrationName()
+        {
+            var kernel = new MoqMockingKernel();
+            var client = new RestClient(IntegrationTestUrl.Current);
+
+            client.AddDefaultParameter("login", "xpaulbettsx");
+            kernel.Bind<IBlobCache>().To<TestBlobCache>();
+
+            var api = new PlayApi(client, kernel.Get<IBlobCache>());
+
+            var result = api.AllSongsForArtist("LCD Soundsystem")
+                .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
+                .First();
+
+            this.Log().Info(String.Join(",", result.Select(x => x.name)));
+            result.Count.Should().BeGreaterThan(2);
+        }
+
+        [Fact]
+        public void MakeAlbumSearchIntegrationName()
+        {
+            var kernel = new MoqMockingKernel();
+            var client = new RestClient(IntegrationTestUrl.Current);
+
+            client.AddDefaultParameter("login", "xpaulbettsx");
+            kernel.Bind<IBlobCache>().To<TestBlobCache>();
+
+            var api = new PlayApi(client, kernel.Get<IBlobCache>());
+
+            var result = api.AllSongsOnAlbum("LCD Soundsystem", "Sound Of Silver")
+                .Timeout(TimeSpan.FromSeconds(9.0), RxApp.TaskpoolScheduler)
+                .First();
+
+            this.Log().Info(String.Join(",", result.Select(x => x.name)));
+            result.Count.Should().BeGreaterThan(2);
+        }
+
     }
 }
