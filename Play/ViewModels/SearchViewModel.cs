@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Akavache;
 using Ninject;
 using Play.Models;
@@ -24,6 +25,7 @@ namespace Play.ViewModels
     public interface ISearchResultTileViewModel : IReactiveNotifyPropertyChanged
     {
         Song Model { get; }
+        BitmapImage AlbumArt { get; }
 
         ReactiveCommand QueueSong { get; }
         ReactiveCommand QueueAlbum { get; }
@@ -66,7 +68,7 @@ namespace Play.ViewModels
             SearchResults = searchResults
                 .Do(_ => SearchResults.Clear())
                 .SelectMany(list => list.ToObservable())
-                .CreateCollection(x => (ISearchResultTileViewModel) new SearchResultTileViewModel(x));
+                .CreateCollection(x => (ISearchResultTileViewModel) new SearchResultTileViewModel(x, playApi));
         }
     }
 
@@ -74,14 +76,21 @@ namespace Play.ViewModels
     {
         public Song Model { get; protected set; }
 
+        ObservableAsPropertyHelper<BitmapImage> _AlbumArt;
+        public BitmapImage AlbumArt {
+            get { return _AlbumArt.Value; }
+        }
+
         public ReactiveCommand QueueSong { get; protected set; }
         public ReactiveCommand QueueAlbum { get; protected set; }
         public ReactiveCommand ShowSongsFromArtist { get; protected set; }
         public ReactiveCommand ShowSongsFromAlbum { get; protected set; }
 
-        public SearchResultTileViewModel(Song model)
+        public SearchResultTileViewModel(Song model, IPlayApi playApi)
         {
             Model = model;
+
+            playApi.FetchImageForAlbum(model).ToProperty(this, x => x.AlbumArt);
         }
     }
 }
