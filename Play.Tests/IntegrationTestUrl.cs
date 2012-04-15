@@ -10,9 +10,16 @@ namespace Play.Tests
     {
         public static string Current {
             get {
-                // return "https://play.yourcompany.com"
+                //return "https://play.yourcompany.com";
                 throw new Exception("Configure IntegrationTestUrl.cs first");
             } 
+        }
+
+        public static string PusherApiKey {
+            get {
+                //return "a04d03ca023f0ab99a";
+                throw new Exception("Configure IntegrationTestUrl.cs first");
+            }
         }
     }
 }
