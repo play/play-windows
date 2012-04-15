@@ -21,6 +21,7 @@ namespace Play.Models
         IObservable<BitmapImage> FetchImageForAlbum(Song song);
         IObservable<string> ListenUrl();
         IObservable<List<Song>> Queue();
+        IObservable<Unit> QueueSong(Song song);
         IObservable<Unit> Star(Song song);
         IObservable<Unit> Unstar(Song song);
         IObservable<List<Song>> Search(string query);
@@ -52,6 +53,14 @@ namespace Play.Models
             return client.RequestAsync<SongQueue>(rq).Select(x => {
                 return x.Data.songs.ToList();
             });
+        }
+
+        public IObservable<Unit> QueueSong(Song song)
+        {
+            var rq = new RestRequest("queue") {Method = Method.POST};
+            rq.AddParameter("id", song.id);
+
+            return client.RequestAsync(rq).Select(_ => Unit.Default);
         }
 
         public IObservable<Unit> Star(Song song)
