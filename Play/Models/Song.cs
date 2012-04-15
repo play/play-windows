@@ -12,7 +12,7 @@ using RestSharp;
 
 namespace Play.Models
 {
-    public class Song
+    public class Song : IEquatable<Song>
     {
 // ReSharper disable InconsistentNaming
         public string album { get; set; }
@@ -22,6 +22,11 @@ namespace Play.Models
         public string name { get; set; }
         public string id { get; set; }
 // ReSharper restore InconsistentNaming
+
+        public bool Equals(Song other)
+        {
+            return this.id == other.id;
+        }
 
         public override string ToString()
         {
