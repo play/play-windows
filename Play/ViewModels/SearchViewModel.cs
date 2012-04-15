@@ -91,6 +91,13 @@ namespace Play.ViewModels
             Model = model;
 
             playApi.FetchImageForAlbum(model).ToProperty(this, x => x.AlbumArt);
+
+            QueueSong = new ReactiveCommand();
+            QueueSong
+                .SelectMany(_ => playApi.QueueSong(Model))
+                .Subscribe(
+                    x => this.Log().Info("Queued {0}", Model.name),
+                    ex => this.Log().WarnException("Failed to queue: {0}", ex));
         }
     }
 }

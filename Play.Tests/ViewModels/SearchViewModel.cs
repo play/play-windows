@@ -73,7 +73,7 @@ namespace Play.Tests.ViewModels
             kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
 
             kernel.GetMock<IPlayApi>().Setup(x => x.Search("Foo"))
-                .Returns(Observable.Return(new List<Song>() {new Song() {id = "12345"}}))
+                .Returns(Observable.Return(new List<Song>() { Fakes.GetSong() }))
                 .Verifiable();
 
             var img = new BitmapImage();
@@ -83,6 +83,35 @@ namespace Play.Tests.ViewModels
 
             var fixture = kernel.Get<ISearchViewModel>();
             return fixture;
+        }
+    }
+
+    public class SearchResultTileViewModelTests
+    {
+        [Fact]
+        public void QueuingASongShouldCallPlayApi()
+        {
+            var kernel = new MoqMockingKernel();
+            var song = Fakes.GetSong();
+            var fixture = setupStandardFixture(song, kernel);
+
+            fixture.QueueSong.Execute(null);
+            kernel.GetMock<IPlayApi>().Verify(x => x.QueueSong(It.IsAny<Song>()));
+        }
+
+        static ISearchResultTileViewModel setupStandardFixture(Song song, MoqMockingKernel kernel)
+        {
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("UserAccount");
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
+
+            kernel.GetMock<IPlayApi>().Setup(x => x.QueueSong(It.IsAny<Song>()))
+                .Returns(Observable.Return(Unit.Default))
+                .Verifiable();
+
+            kernel.GetMock<IPlayApi>().Setup(x => x.FetchImageForAlbum(It.IsAny<Song>()))
+                .Returns(Observable.Return(new BitmapImage()));
+
+            return new SearchResultTileViewModel(song, kernel.Get<IPlayApi>());
         }
     }
 }
