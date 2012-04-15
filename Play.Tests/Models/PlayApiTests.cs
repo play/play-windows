@@ -75,7 +75,7 @@ namespace Play.Tests.Models
         }
 
         [Fact]
-        public void MakeArtistSearchIntegrationName()
+        public void MakeArtistSearchIntegrationTest()
         {
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
@@ -94,7 +94,7 @@ namespace Play.Tests.Models
         }
 
         [Fact]
-        public void MakeAlbumSearchIntegrationName()
+        public void MakeAlbumSearchIntegrationTest()
         {
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);

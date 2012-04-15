@@ -36,7 +36,7 @@ namespace Play.Tests.ViewModels
             kernel.GetMock<IPlayApi>().Verify(x => x.Search("Foo"), Times.Once());
 
             fixture.SearchResults.Count.Should().Be(1);
-            fixture.SearchResults[0].Model.id.Should().Be("12345");
+            fixture.SearchResults[0].Model.id.Should().Be("4B52884E1E293890");
         }
 
         [Fact]
