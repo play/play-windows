@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -83,10 +84,17 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(1.5), RxApp.TaskpoolScheduler).Multicast(new Subject<long>());
+                var shouldUpdate = Observable.Defer(() =>
+                    Observable.Amb(
+                        Observable.Timer(TimeSpan.FromMinutes(4.0), RxApp.TaskpoolScheduler).Select(_ => Unit.Default),
+                        playApi.ConnectToSongChangeNotifications()))
+                    .Repeat()
+                    .StartWith(Unit.Default)
+                    .Do(_ => this.Log().Info("Tick"))
+                    .Multicast(new Subject<Unit>());
 
-                var nowPlaying = timer.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
-                timer.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
+                var nowPlaying = shouldUpdate.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
+                shouldUpdate.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
 
                 nowPlaying.ToProperty(this, x => x.CurrentSong);
 
@@ -94,7 +102,10 @@ namespace Play.ViewModels
                     .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
                     .ToProperty(this, x => x.AlbumArt);
 
-                return new CompositeDisposable(timer.Connect(), nowPlaying.Connect());
+                var ret = new CompositeDisposable();
+                ret.Add(nowPlaying.Connect());
+                ret.Add(shouldUpdate.Connect());
+                return ret;
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
