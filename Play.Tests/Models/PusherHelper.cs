@@ -16,7 +16,7 @@ namespace Play.Tests.Models
 {
     public class PusherHelperTests
     {
-        [Fact]
+        [Fact(Skip = "This test is super slow and is for debug purposes")]
         public void PusherIntegrationSmokeTest()
         {
             Func<Pusher> factory = () => new Pusher(IntegrationTestUrl.PusherApiKey);
