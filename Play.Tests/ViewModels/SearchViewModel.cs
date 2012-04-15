@@ -86,7 +86,7 @@ namespace Play.Tests.ViewModels
         }
     }
 
-    public class SearchResultTileViewModelTests
+    public class SearchResultTileViewModelTests : IEnableLogger
     {
         [Fact]
         public void QueuingASongShouldCallPlayApi()
@@ -99,6 +99,28 @@ namespace Play.Tests.ViewModels
             kernel.GetMock<IPlayApi>().Verify(x => x.QueueSong(It.IsAny<Song>()));
         }
 
+        [Fact]
+        public void QueueingAlbumShouldCallQueueSongForEverySong()
+        {
+            var kernel = new MoqMockingKernel();
+            var song = Fakes.GetSong();
+
+            var fakeAlbum = Fakes.GetAlbum();
+            var queuedSongs = new List<Song>();
+            var fixture = setupStandardFixture(song, kernel);
+
+            kernel.GetMock<IPlayApi>().Setup(x => x.QueueSong(It.IsAny<Song>()))
+                .Callback<Song>(queuedSongs.Add)
+                .Returns(Observable.Return(Unit.Default))
+                .Verifiable();
+
+            fixture.QueueAlbum.Execute(null);
+
+            this.Log().Info("Queued songs: {0}", String.Join(",", queuedSongs.Select(x => x.name)));
+            queuedSongs.Count.Should().Be(fakeAlbum.Count);
+            fakeAlbum.Zip(queuedSongs, (e, a) => e.id == a.id).All(x => x).Should().BeTrue();
+        }
+
         static ISearchResultTileViewModel setupStandardFixture(Song song, MoqMockingKernel kernel)
         {
             kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("UserAccount");
@@ -106,6 +128,10 @@ namespace Play.Tests.ViewModels
 
             kernel.GetMock<IPlayApi>().Setup(x => x.QueueSong(It.IsAny<Song>()))
                 .Returns(Observable.Return(Unit.Default))
+                .Verifiable();
+
+            kernel.GetMock<IPlayApi>().Setup(x => x.AllSongsOnAlbum(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Observable.Return(Fakes.GetAlbum()))
                 .Verifiable();
 
             kernel.GetMock<IPlayApi>().Setup(x => x.FetchImageForAlbum(It.IsAny<Song>()))

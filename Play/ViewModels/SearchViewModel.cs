@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,10 +28,10 @@ namespace Play.ViewModels
         Song Model { get; }
         BitmapImage AlbumArt { get; }
 
-        ReactiveCommand QueueSong { get; }
-        ReactiveCommand QueueAlbum { get; }
-        ReactiveCommand ShowSongsFromArtist { get; }
-        ReactiveCommand ShowSongsFromAlbum { get; }
+        ReactiveAsyncCommand QueueSong { get; }
+        ReactiveAsyncCommand QueueAlbum { get; }
+        ReactiveAsyncCommand ShowSongsFromArtist { get; }
+        ReactiveAsyncCommand ShowSongsFromAlbum { get; }
     }
 
     public class SearchViewModel : ReactiveObject, ISearchViewModel
@@ -81,10 +82,10 @@ namespace Play.ViewModels
             get { return _AlbumArt.Value; }
         }
 
-        public ReactiveCommand QueueSong { get; protected set; }
-        public ReactiveCommand QueueAlbum { get; protected set; }
-        public ReactiveCommand ShowSongsFromArtist { get; protected set; }
-        public ReactiveCommand ShowSongsFromAlbum { get; protected set; }
+        public ReactiveAsyncCommand QueueSong { get; protected set; }
+        public ReactiveAsyncCommand QueueAlbum { get; protected set; }
+        public ReactiveAsyncCommand ShowSongsFromArtist { get; protected set; }
+        public ReactiveAsyncCommand ShowSongsFromAlbum { get; protected set; }
 
         public SearchResultTileViewModel(Song model, IPlayApi playApi)
         {
@@ -92,12 +93,27 @@ namespace Play.ViewModels
 
             playApi.FetchImageForAlbum(model).ToProperty(this, x => x.AlbumArt);
 
-            QueueSong = new ReactiveCommand();
-            QueueSong
-                .SelectMany(_ => playApi.QueueSong(Model))
+            QueueSong = new ReactiveAsyncCommand();
+            QueueAlbum = new ReactiveAsyncCommand();
+
+            QueueSong.RegisterAsyncObservable(_ => playApi.QueueSong(Model))
                 .Subscribe(
                     x => this.Log().Info("Queued {0}", Model.name),
-                    ex => this.Log().WarnException("Failed to queue: {0}", ex));
+                    ex => this.Log().WarnException("Failed to queue", ex));
+
+            QueueAlbum.RegisterAsyncObservable(_ => playApi.AllSongsOnAlbum(Model.artist, Model.album))
+                .SelectMany(x => x.ToObservable())
+                .Select(x => reallyTryToQueueSong(playApi, x)).Concat()
+                .Subscribe(
+                    x => this.Log().Info("Queued song"),
+                    ex => this.Log().WarnException("Failed to queue album", ex));
+        }
+
+        IObservable<Unit> reallyTryToQueueSong(IPlayApi playApi, Song song)
+        {
+            return Observable.Defer(() => playApi.QueueSong(song))
+                .Timeout(TimeSpan.FromSeconds(20), RxApp.TaskpoolScheduler)
+                .Retry(3);
         }
     }
 }
