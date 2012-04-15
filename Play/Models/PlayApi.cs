@@ -57,7 +57,10 @@ namespace Play.Models
 
         public IObservable<Unit> QueueSong(Song song)
         {
-            throw new NotImplementedException();
+            var rq = new RestRequest("queue") {Method = Method.POST};
+            rq.AddParameter("id", song.id);
+
+            return client.RequestAsync(rq).Select(_ => Unit.Default);
         }
 
         public IObservable<Unit> Star(Song song)
