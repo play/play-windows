@@ -5,11 +5,13 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Akavache;
 using FluentAssertions;
 using Moq;
 using Ninject;
 using Ninject.MockingKernel.Moq;
 using Play.Models;
+using Play.ViewModels;
 using ReactiveUI;
 using ReactiveUI.Routing;
 using ReactiveUI.Xaml;
@@ -23,6 +25,8 @@ namespace Play.Tests.ViewModels
         public void PlayApiShouldBeCalledOnPerformSearch()
         {
             var kernel = new MoqMockingKernel();
+            kernel.Bind<ISearchViewModel>().To<SearchViewModel>();
+            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("UserAccount");
 
             kernel.GetMock<IPlayApi>()
                 .Setup(x => x.Search("Foo"))
@@ -41,23 +45,5 @@ namespace Play.Tests.ViewModels
             fixture.SearchResults.Count.Should().Be(1);
             fixture.SearchResults[0].Model.id.Should().Be("12345");
         }
-    }
-
-    public interface ISearchViewModel : IRoutableViewModel
-    {
-        string SearchQuery { get; set; }
-
-        ReactiveCollection<ISearchResultTileViewModel> SearchResults { get; }
-        ReactiveAsyncCommand PerformSearch { get; }
-    }
-
-    public interface ISearchResultTileViewModel : IReactiveNotifyPropertyChanged
-    {
-        Song Model { get; }
-
-        ReactiveCommand QueueSong { get; }
-        ReactiveCommand QueueAlbum { get; }
-        ReactiveCommand ShowSongsFromArtist { get; }
-        ReactiveCommand ShowSongsFromAlbum { get; }
     }
 }
