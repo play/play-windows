@@ -85,10 +85,9 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var shouldUpdate = Observable.Defer(() =>
-                    Observable.Amb(
-                        Observable.Timer(TimeSpan.FromMinutes(4.0), RxApp.TaskpoolScheduler).Select(_ => Unit.Default),
-                        playApi.ConnectToSongChangeNotifications()))
+                var pusherSubj = playApi.ConnectToSongChangeNotifications().Multicast(new Subject<Unit>());
+                var shouldUpdate = Observable.Defer(() => 
+                        pusherSubj.Take(1).Timeout(TimeSpan.FromMinutes(4.0), RxApp.TaskpoolScheduler)).Catch(Observable.Return(Unit.Default))
                     .Repeat()
                     .StartWith(Unit.Default)
                     .Multicast(new Subject<Unit>());
@@ -105,6 +104,7 @@ namespace Play.ViewModels
                 var ret = new CompositeDisposable();
                 ret.Add(nowPlaying.Connect());
                 ret.Add(shouldUpdate.Connect());
+                ret.Add(pusherSubj.Connect());
                 return ret;
             });
 
