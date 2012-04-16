@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +24,7 @@ using Moq;
 
 namespace Play.Tests.ViewModels
 {
-    public class PlayViewModelTests
+    public class PlayViewModelTests : IEnableLogger
     {
         [Fact]
         public void NavigatingToPlayWithoutAPasswordShouldNavigateToLogin()
@@ -48,21 +50,10 @@ namespace Play.Tests.ViewModels
         public void NavigatingToPlayWithCredsShouldStayOnPlay()
         {
             var kernel = new MoqMockingKernel();
-            kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
-            kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
-
             var router = new RoutingState();
-            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
-            kernel.GetMock<ILoginMethods>()
-                .Setup(x => x.EraseCredentialsAndNavigateToLogin())
-                .Callback(() => router.Navigate.Execute(kernel.Get<IWelcomeViewModel>()));
+            var fixture = setupStandardMock(kernel, router);
 
-            kernel.GetMock<ILoginMethods>()
-                .Setup(x => x.CurrentAuthenticatedClient)
-                .Returns(kernel.Get<IPlayApi>());
-
-            var fixture = kernel.Get<IPlayViewModel>();
             router.Navigate.Execute(fixture);
             (router.GetCurrentViewModel() is IPlayViewModel).Should().BeTrue();
         }
@@ -71,21 +62,9 @@ namespace Play.Tests.ViewModels
         public void LogoutButtonShouldSendMeToWelcomePage()
         {
             var kernel = new MoqMockingKernel();
-            kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
-            kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
-
             var router = new RoutingState();
-            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
-            kernel.GetMock<ILoginMethods>()
-                .Setup(x => x.EraseCredentialsAndNavigateToLogin())
-                .Callback(() => router.Navigate.Execute(kernel.Get<IWelcomeViewModel>()));
-
-            kernel.GetMock<ILoginMethods>()
-                .Setup(x => x.CurrentAuthenticatedClient)
-                .Returns(kernel.Get<IPlayApi>());
-
-            var fixture = kernel.Get<IPlayViewModel>();
+            var fixture = setupStandardMock(kernel, router);
             router.Navigate.Execute(fixture);
             fixture.Logout.Execute(null);
 
@@ -120,35 +99,89 @@ namespace Play.Tests.ViewModels
         }
 
         [Fact]
-        public void WeShouldRefreshTheSongEveryNinetySeconds()
+        public void WhenPusherFiresWeShouldUpdateTheAlbum()
         {
             var kernel = new MoqMockingKernel();
+            var router = new RoutingState();
+            var pusher = new Subject<Unit>();
+            int nowPlayingExecuteCount = 0;
+
+            var fixture = setupStandardMock(kernel, router, () => {
+                kernel.GetMock<IPlayApi>().Setup(x => x.ConnectToSongChangeNotifications()).Returns(pusher);
+                kernel.GetMock<IPlayApi>().Setup(x => x.NowPlaying())
+                    .Callback(() => nowPlayingExecuteCount++).Returns(Observable.Return(Fakes.GetSong()));
+            });
+
+            router.Navigate.Execute(fixture);
+            nowPlayingExecuteCount.Should().Be(1);
+
+            pusher.OnNext(Unit.Default);
+            nowPlayingExecuteCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TheTimerShouldFireIfPusherDoesnt()
+        {
+            (new TestScheduler()).With(sched =>
+            {
+                var kernel = new MoqMockingKernel();
+                var router = new RoutingState();
+                var pusher = new Subject<Unit>();
+                int nowPlayingExecuteCount = 0;
+
+                var fixture = setupStandardMock(kernel, router, () => {
+                    kernel.GetMock<IPlayApi>().Setup(x => x.ConnectToSongChangeNotifications()).Returns(pusher);
+                    kernel.GetMock<IPlayApi>().Setup(x => x.NowPlaying())
+                        .Callback(() => nowPlayingExecuteCount++).Returns(Observable.Return(Fakes.GetSong()));
+                });
+
+                router.Navigate.Execute(fixture);
+                sched.AdvanceToMs(10);
+                nowPlayingExecuteCount.Should().Be(1);
+
+                sched.AdvanceToMs(1000);
+                nowPlayingExecuteCount.Should().Be(1);
+
+                pusher.OnNext(Unit.Default);
+                sched.AdvanceToMs(1010);
+                nowPlayingExecuteCount.Should().Be(2);
+
+                // NB: The 4 minute timer starts after the last Pusher notification
+                // make sure we *don't* tick.
+                sched.AdvanceToMs(4*60*1000 + 10);
+                nowPlayingExecuteCount.Should().Be(2);
+
+                sched.AdvanceToMs(5*60*1000 + 1500);
+                nowPlayingExecuteCount.Should().Be(3);
+            });
+            
+        }
+
+
+        IPlayViewModel setupStandardMock(MoqMockingKernel kernel, IRoutingState router, Action extraSetup = null)
+        {
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
 
-            int nowPlayingCalls = 0;
-            kernel.GetMock<IPlayApi>().Setup(x => x.NowPlaying()).Callback(() => nowPlayingCalls++).Returns(Observable.Return<Song>(null));
-            kernel.GetMock<IPlayApi>().Setup(x => x.Queue()).Returns(Observable.Return<List<Song>>(null));
-            kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Return("http://foo"));
-            kernel.GetMock<IPlayApi>().Setup(x => x.FetchImageForAlbum(null)).Returns(Observable.Return<BitmapImage>(null));
+            var playApi = kernel.GetMock<IPlayApi>();
+            playApi.Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
+            playApi.Setup(x => x.ConnectToSongChangeNotifications()).Returns(Observable.Never<Unit>());
+            playApi.Setup(x => x.NowPlaying()).Returns(Observable.Return(Fakes.GetSong()));
+            playApi.Setup(x => x.Queue()).Returns(Observable.Return(Fakes.GetAlbum()));
+            playApi.Setup(x => x.FetchImageForAlbum(It.IsAny<Song>())).Returns(Observable.Return<BitmapImage>(null));
 
-            kernel.GetMock<ILoginMethods>().SetupGet(x => x.CurrentAuthenticatedClient).Returns(kernel.Get<IPlayApi>());
-
-            var router = new RoutingState();
             kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
-            (new TestScheduler()).With(sched => {
-                router.Navigate.Execute(kernel.Get<IPlayViewModel>());
-                nowPlayingCalls.Should().Be(0);
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.EraseCredentialsAndNavigateToLogin())
+                .Callback(() => router.Navigate.Execute(kernel.Get<IWelcomeViewModel>()));
 
-                sched.AdvanceToMs(10);
-                nowPlayingCalls.Should().Be(1);
+            kernel.GetMock<ILoginMethods>()
+                .Setup(x => x.CurrentAuthenticatedClient)
+                .Returns(kernel.Get<IPlayApi>());
 
-                sched.AdvanceToMs(95*1000);
-                nowPlayingCalls.Should().Be(2);
-
-                sched.AdvanceToMs(185*1000);
-                nowPlayingCalls.Should().Be(3);
-            });
+            if (extraSetup != null) extraSetup();
+            return kernel.Get<IPlayViewModel>();
         }
+
     }
 }

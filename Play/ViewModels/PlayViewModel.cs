@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -83,10 +85,15 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var timer = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMinutes(1.5), RxApp.TaskpoolScheduler).Multicast(new Subject<long>());
+                var pusherSubj = playApi.ConnectToSongChangeNotifications().Multicast(new Subject<Unit>());
+                var shouldUpdate = Observable.Defer(() => 
+                        pusherSubj.Take(1).Timeout(TimeSpan.FromMinutes(4.0), RxApp.TaskpoolScheduler)).Catch(Observable.Return(Unit.Default))
+                    .Repeat()
+                    .StartWith(Unit.Default)
+                    .Multicast(new Subject<Unit>());
 
-                var nowPlaying = timer.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
-                timer.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
+                var nowPlaying = shouldUpdate.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
+                shouldUpdate.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
 
                 nowPlaying.ToProperty(this, x => x.CurrentSong);
 
@@ -94,7 +101,11 @@ namespace Play.ViewModels
                     .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
                     .ToProperty(this, x => x.AlbumArt);
 
-                return new CompositeDisposable(timer.Connect(), nowPlaying.Connect());
+                var ret = new CompositeDisposable();
+                ret.Add(nowPlaying.Connect());
+                ret.Add(shouldUpdate.Connect());
+                ret.Add(pusherSubj.Connect());
+                return ret;
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
