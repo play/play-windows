@@ -52,6 +52,9 @@ namespace Play.Tests.ViewModels
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
             kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
             kernel.GetMock<IPlayApi>().Setup(x => x.ConnectToSongChangeNotifications()).Returns(Observable.Never<Unit>());
+            kernel.GetMock<IPlayApi>().Setup(x => x.NowPlaying()).Returns(Observable.Return(Fakes.GetSong()));
+            kernel.GetMock<IPlayApi>().Setup(x => x.Queue()).Returns(Observable.Return(Fakes.GetAlbum()));
+            kernel.GetMock<IPlayApi>().Setup(x => x.FetchImageForAlbum(It.IsAny<Song>())).Returns(Observable.Return<BitmapImage>(null));
 
             var router = new RoutingState();
             kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
@@ -76,6 +79,9 @@ namespace Play.Tests.ViewModels
             kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
             kernel.GetMock<IPlayApi>().Setup(x => x.ListenUrl()).Returns(Observable.Never<string>());
             kernel.GetMock<IPlayApi>().Setup(x => x.ConnectToSongChangeNotifications()).Returns(Observable.Never<Unit>());
+            kernel.GetMock<IPlayApi>().Setup(x => x.NowPlaying()).Returns(Observable.Return(Fakes.GetSong()));
+            kernel.GetMock<IPlayApi>().Setup(x => x.Queue()).Returns(Observable.Return(Fakes.GetAlbum()));
+            kernel.GetMock<IPlayApi>().Setup(x => x.FetchImageForAlbum(It.IsAny<Song>())).Returns(Observable.Return<BitmapImage>(null));
 
             var router = new RoutingState();
             kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);

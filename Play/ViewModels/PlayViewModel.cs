@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -90,7 +91,6 @@ namespace Play.ViewModels
                         playApi.ConnectToSongChangeNotifications()))
                     .Repeat()
                     .StartWith(Unit.Default)
-                    .Do(_ => this.Log().Info("Tick"))
                     .Multicast(new Subject<Unit>());
 
                 var nowPlaying = shouldUpdate.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
