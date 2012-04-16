@@ -27,6 +27,8 @@ namespace Play.Models
         IObservable<List<Song>> Search(string query);
         IObservable<List<Song>> AllSongsForArtist(string name);
         IObservable<List<Song>> AllSongsOnAlbum(string artist, string album);
+
+        IObservable<Unit> ConnectToSongChangeNotifications();
     }
 
     public class PlayApi : IPlayApi, IEnableLogger
@@ -114,6 +116,11 @@ namespace Play.Models
                 HttpUtility.UrlEncode(album).Replace("+", "%20")));
 
             return client.RequestAsync<SongQueue>(rq).Select(x => x.Data.songs);
+        }
+
+        public IObservable<Unit> ConnectToSongChangeNotifications()
+        {
+            return Observable.Never<Unit>();
         }
 
         public IObservable<string> ListenUrl()
