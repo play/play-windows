@@ -1087,14 +1087,6 @@
             the application with an error message.
             </summary>
         </member>
-        <member name="M:ReactiveUI.TplMixins.SelectAsync``2(System.IObservable{``0},System.Func{``0,System.Threading.Tasks.Task{``1}})">
-            <summary>
-            Apply a TPL-async method to each item in an IObservable. Like 
-            Select but asynchronous via the TPL.
-            </summary>
-            <param name="selector">The selection method to use.</param>
-            <returns>An Observable represented the mapped sequence.</returns>
-        </member>
         <member name="T:ReactiveUI.ReactiveValidatedObject">
             <summary>
             

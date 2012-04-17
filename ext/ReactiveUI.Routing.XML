@@ -4,6 +4,83 @@
         <name>ReactiveUI.Routing</name>
     </assembly>
     <members>
+        <member name="T:ReactiveUI.Routing.ViewModelViewHost">
+            <summary>
+            This content control will automatically load the View associated with
+            the ViewModel property and display it. This control is very useful
+            inside a DataTemplate to display the View associated with a ViewModel.
+            </summary>
+        </member>
+        <member name="P:ReactiveUI.Routing.ViewModelViewHost.ViewModel">
+            <summary>
+            The ViewModel to display
+            </summary>
+        </member>
+        <member name="P:ReactiveUI.Routing.ViewModelViewHost.DefaultContent">
+            <summary>
+            If no ViewModel is displayed, this content (i.e. a control) will be displayed.
+            </summary>
+        </member>
+        <member name="T:ReactiveUI.Routing.RoutedViewHost">
+            <summary>
+            This control hosts the View associated with a Router, and will display
+            the View and wire up the ViewModel whenever a new ViewModel is
+            navigated to. Put this control as the only control in your Window.
+            </summary>
+        </member>
+        <member name="P:ReactiveUI.Routing.RoutedViewHost.Router">
+            <summary>
+            The Router associated with this View Host.
+            </summary>
+        </member>
+        <member name="P:ReactiveUI.Routing.RoutedViewHost.DefaultContent">
+            <summary>
+            This content is displayed whenever there is no page currently
+            routed.
+            </summary>
+        </member>
+        <member name="M:ReactiveUI.Routing.RxRouting.ResolveView``1(``0)">
+            <summary>
+            Returns the View associated with a ViewModel, deriving the name of
+            the Type via ViewModelToViewFunc, then discovering it via
+            ServiceLocator.
+            </summary>
+            <param name="viewModel">The ViewModel for which to find the
+            associated View.</param>
+            <returns>The View for the ViewModel.</returns>
+        </member>
+        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.NavigatedToMe(ReactiveUI.Routing.IRoutableViewModel)">
+            <summary>
+            This Observable fires whenever the current ViewModel is navigated to.
+            Note that this method is difficult to use directly without leaking
+            memory, you most likely want to use WhenNavigatedTo.
+            </summary>
+        </member>
+        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.NavigatedFromMe(ReactiveUI.Routing.IRoutableViewModel)">
+            <summary>
+            This Observable fires whenever the current ViewModel is navigated
+            away from.  Note that this method is difficult to use directly
+            without leaking memory, you most likely want to use WhenNavigatedTo.
+            </summary>
+        </member>
+        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.WhenNavigatedTo(ReactiveUI.Routing.IRoutableViewModel,System.Func{System.IDisposable})">
+            <summary>
+            This method allows you to set up connections that only operate
+            while the ViewModel has focus, and cleans up when the ViewModel
+            loses focus.
+            </summary>
+            <param name="onNavigatedTo">Called when the ViewModel is navigated
+            to - return an IDisposable that cleans up all of the things that are
+            configured in the method.</param>
+            <returns>An IDisposable that lets you disconnect the entire process
+            earlier than normal.</returns>
+        </member>
+        <member name="T:ReactiveUI.Routing.RoutingState">
+            <summary>
+            RoutingState manages the ViewModel Stack and allows ViewModels to
+            navigate to other ViewModels.
+            </summary>
+        </member>
         <member name="P:ReactiveUI.Routing.IRoutingState.NavigationStack">
             <summary>
             Represents the current navigation stack, the last element in the
@@ -27,60 +104,6 @@
             new ViewModel will now be the only element in the stack) - the
             Execute parameter must be a ViewModel that implements
             IRoutableViewModel.
-            </summary>
-        </member>
-        <member name="T:ReactiveUI.Routing.IRoutableViewModel">
-            <summary>
-            Implement this interface for ViewModels that can be navigated to.
-            </summary>
-        </member>
-        <member name="P:ReactiveUI.Routing.IRoutableViewModel.UrlPathSegment">
-            <summary>
-            A string token representing the current ViewModel, such as 'login' or 'user'
-            </summary>
-        </member>
-        <member name="P:ReactiveUI.Routing.IRoutableViewModel.HostScreen">
-            <summary>
-            The IScreen that this ViewModel is currently being shown in. This
-            is usually passed into the ViewModel in the Constructor and saved
-            as a ReadOnly Property.
-            </summary>
-        </member>
-        <member name="T:ReactiveUI.Routing.IViewForViewModel`1">
-            <summary>
-            Implement this interface on your Views.
-            </summary>
-        </member>
-        <member name="P:ReactiveUI.Routing.IViewForViewModel`1.ViewModel">
-            <summary>
-            The ViewModel corresponding to this specific View.
-            </summary>
-        </member>
-        <member name="T:ReactiveUI.Routing.IScreen">
-            <summary>
-            IScreen represents any object that is hosting its own routing -
-            usually this object is your AppViewModel or MainWindow object.
-            </summary>
-        </member>
-        <member name="P:ReactiveUI.Routing.IScreen.Router">
-            <summary>
-            The Router associated with this Screen.
-            </summary>
-        </member>
-        <member name="T:ReactiveUI.Routing.ViewContractAttribute">
-            <summary>
-            Allows an additional string to make view resolution more specific than just a type.
-            </summary>
-        </member>
-        <member name="P:ReactiveUI.Routing.ViewContractAttribute.Contract">
-            <summary>
-            A unique string that will be used along with the type to resolve a View
-            </summary>
-        </member>
-        <member name="T:ReactiveUI.Routing.RoutingState">
-            <summary>
-            RoutingState manages the ViewModel Stack and allows ViewModels to
-            navigate to other ViewModels.
             </summary>
         </member>
         <member name="P:ReactiveUI.Routing.RoutingState.NavigationStack">
@@ -130,75 +153,52 @@
             Returns an Observable that signals ViewModel changes.
             </summary>
         </member>
-        <member name="M:ReactiveUI.Routing.RxRouting.ResolveView``1(``0)">
+        <member name="T:ReactiveUI.Routing.IRoutableViewModel">
             <summary>
-            Returns the View associated with a ViewModel, deriving the name of
-            the Type via ViewModelToViewFunc, then discovering it via
-            ServiceLocator.
-            </summary>
-            <param name="viewModel">The ViewModel for which to find the
-            associated View.</param>
-            <returns>The View for the ViewModel.</returns>
-        </member>
-        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.NavigatedToMe(ReactiveUI.Routing.IRoutableViewModel)">
-            <summary>
-            This Observable fires whenever the current ViewModel is navigated to.
-            Note that this method is difficult to use directly without leaking 
-            memory, you most likely want to use WhenNavigatedTo.
+            Implement this interface for ViewModels that can be navigated to.
             </summary>
         </member>
-        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.NavigatedFromMe(ReactiveUI.Routing.IRoutableViewModel)">
+        <member name="P:ReactiveUI.Routing.IRoutableViewModel.UrlPathSegment">
             <summary>
-            This Observable fires whenever the current ViewModel is navigated 
-            away from.  Note that this method is difficult to use directly 
-            without leaking memory, you most likely want to use WhenNavigatedTo.
+            A string token representing the current ViewModel, such as 'login' or 'user'
             </summary>
         </member>
-        <member name="M:ReactiveUI.Routing.RoutableViewModelMixin.WhenNavigatedTo(ReactiveUI.Routing.IRoutableViewModel,System.Func{System.IDisposable})">
+        <member name="P:ReactiveUI.Routing.IRoutableViewModel.HostScreen">
             <summary>
-            This method allows you to set up connections that only operate 
-            while the ViewModel has focus, and cleans up when the ViewModel
-            loses focus.
-            </summary>
-            <param name="onNavigatedTo">Called when the ViewModel is navigated
-            to - return an IDisposable that cleans up all of the things that are
-            configured in the method.</param>
-            <returns>An IDisposable that lets you disconnect the entire process
-            earlier than normal.</returns>
-        </member>
-        <member name="T:ReactiveUI.Routing.RoutedViewHost">
-            <summary>
-            This control hosts the View associated with a Router, and will display
-            the View and wire up the ViewModel whenever a new ViewModel is
-            navigated to. Put this control as the only control in your Window.
+            The IScreen that this ViewModel is currently being shown in. This
+            is usually passed into the ViewModel in the Constructor and saved
+            as a ReadOnly Property.
             </summary>
         </member>
-        <member name="P:ReactiveUI.Routing.RoutedViewHost.Router">
+        <member name="T:ReactiveUI.Routing.IViewForViewModel`1">
             <summary>
-            The Router associated with this View Host.
+            Implement this interface on your Views.
             </summary>
         </member>
-        <member name="P:ReactiveUI.Routing.RoutedViewHost.DefaultContent">
+        <member name="P:ReactiveUI.Routing.IViewForViewModel`1.ViewModel">
             <summary>
-            This content is displayed whenever there is no page currently
-            routed.
+            The ViewModel corresponding to this specific View.
             </summary>
         </member>
-        <member name="T:ReactiveUI.Routing.ViewModelViewHost">
+        <member name="T:ReactiveUI.Routing.IScreen">
             <summary>
-            This content control will automatically load the View associated with
-            the ViewModel property and display it. This control is very useful
-            inside a DataTemplate to display the View associated with a ViewModel.
+            IScreen represents any object that is hosting its own routing -
+            usually this object is your AppViewModel or MainWindow object.
             </summary>
         </member>
-        <member name="P:ReactiveUI.Routing.ViewModelViewHost.ViewModel">
+        <member name="P:ReactiveUI.Routing.IScreen.Router">
             <summary>
-            The ViewModel to display
+            The Router associated with this Screen.
             </summary>
         </member>
-        <member name="P:ReactiveUI.Routing.ViewModelViewHost.DefaultContent">
+        <member name="T:ReactiveUI.Routing.ViewContractAttribute">
             <summary>
-            If no ViewModel is displayed, this content (i.e. a control) will be displayed.
+            Allows an additional string to make view resolution more specific than just a type.
+            </summary>
+        </member>
+        <member name="P:ReactiveUI.Routing.ViewContractAttribute.Contract">
+            <summary>
+            A unique string that will be used along with the type to resolve a View
             </summary>
         </member>
     </members>
