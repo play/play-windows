@@ -86,6 +86,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Interactive">
+      <HintPath>..\packages\Ix_Experimental-Main.1.1.10823\lib\Net4\System.Interactive.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\ext\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -102,6 +106,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ext\System.Reactive.Windows.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ext\System.Windows.Interactivity.dll</HintPath>
@@ -135,6 +140,9 @@
     <Compile Include="Views\PlayView.xaml.cs">
       <DependentUpon>PlayView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\SongTileView.xaml.cs">
+      <DependentUpon>SongTileView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\WelcomeView.xaml.cs">
       <DependentUpon>WelcomeView.xaml</DependentUpon>
     </Compile>
@@ -157,6 +165,10 @@
     <Page Include="Views\PlayView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\SongTileView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\WelcomeView.xaml">
       <Generator>MSBuild:Compile</Generator>

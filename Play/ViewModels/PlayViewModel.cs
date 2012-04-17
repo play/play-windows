@@ -20,11 +20,11 @@ namespace Play.ViewModels
     public interface IPlayViewModel : IRoutableViewModel
     {
         IPlayApi AuthenticatedClient { get; }
-        BitmapImage AlbumArt { get; }
         string ListenUrl { get; }
         Song CurrentSong { get; }
         IEnumerable<Song> Queue { get; }
-
+        IEnumerable<SongTileViewModel> AllSongs { get; }
+            
         ReactiveCommand TogglePlay { get; }
         ReactiveCommand Logout { get; }
     }
@@ -36,11 +36,6 @@ namespace Play.ViewModels
         }
 
         public IScreen HostScreen { get; protected set; }
-
-        ObservableAsPropertyHelper<BitmapImage> _AlbumArt;
-        public BitmapImage AlbumArt {
-            get { return _AlbumArt.Value; }
-        }
 
         ObservableAsPropertyHelper<Song> _CurrentSong;
         public Song CurrentSong {
@@ -62,8 +57,8 @@ namespace Play.ViewModels
             get { return _ListenUrl.Value; }
         }
 
-        ObservableAsPropertyHelper<IEnumerable<Song>> _AllSongs;
-        public IEnumerable<Song> AllSongs {
+        ObservableAsPropertyHelper<IEnumerable<SongTileViewModel>> _AllSongs;
+        public IEnumerable<SongTileViewModel> AllSongs {
             get { return _AllSongs.Value; }
         }
 
@@ -80,7 +75,7 @@ namespace Play.ViewModels
             // XXX: God I hate that I have to do this
             Observable.Never<Song>().ToProperty(this, x => x.CurrentSong);
             Observable.Never<IEnumerable<Song>>().ToProperty(this, x => x.Queue);
-            Observable.Never<BitmapImage>().ToProperty(this, x => x.AlbumArt);
+            Observable.Never<IEnumerable<SongTileViewModel>>().ToProperty(this, x => x.AllSongs);
 
             this.WhenNavigatedTo(() => {
                 var playApi = loginMethods.CurrentAuthenticatedClient;
@@ -103,9 +98,11 @@ namespace Play.ViewModels
 
                 nowPlaying.ToProperty(this, x => x.CurrentSong);
 
-                nowPlaying.SelectMany(playApi.FetchImageForAlbum)
-                    .Catch<BitmapImage, Exception>(ex => { this.Log().WarnException("Failed to load album art", ex); return Observable.Return<BitmapImage>(null); })
-                    .ToProperty(this, x => x.AlbumArt);
+                this.WhenAny(x => x.CurrentSong, x => x.Queue, 
+                        (song, queue) => (queue.Value != null && song.Value != null ? queue.Value.StartWith(song.Value) : Enumerable.Empty<Song>()))
+                    .Do(x => this.Log().Info("Found {0} items", x.Count()))
+                    .Select(x => x.Select(y => new SongTileViewModel(y, loginMethods.CurrentAuthenticatedClient)))
+                    .ToProperty(this, x => x.AllSongs);
 
                 var ret = new CompositeDisposable();
                 ret.Add(nowPlaying.Connect());
@@ -113,9 +110,6 @@ namespace Play.ViewModels
                 ret.Add(pusherSubj.Connect());
                 return ret;
             });
-
-            this.WhenAny(x => x.CurrentSong, x => x.Queue, (song, queue) => queue.Value.StartWith(song.Value))
-                .ToProperty(this, x => x.AllSongs);
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
         }

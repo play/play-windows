@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="Play.Views.SongTileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" x:Name="theView"
+             d:DesignHeight="100" d:DesignWidth="300">
+
+    <Grid DataContext="{Binding Path=ViewModel, ElementName=theView}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Image Source="{Binding AlbumArt}" Height="64" Width="64" VerticalAlignment="Center" Margin="8" />
+        <StackPanel Orientation="Vertical" Margin="0,8,8,0" VerticalAlignment="Top" Grid.Column="1">
+            <TextBlock FontWeight="Bold" Text="{Binding Path=Model.name}" />
+            <TextBlock Text="{Binding Path=Model.album}" />
+            <TextBlock Text="{Binding Path=Model.artist}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
+            <Button Content="Star" />
+            <Button Content="Download" />
+            <Button Content="Do Sth" />
+        </StackPanel>
+    </Grid>
+</UserControl>
