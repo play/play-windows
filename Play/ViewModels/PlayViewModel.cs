@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -61,6 +62,11 @@ namespace Play.ViewModels
             get { return _ListenUrl.Value; }
         }
 
+        ObservableAsPropertyHelper<IEnumerable<Song>> _AllSongs;
+        public IEnumerable<Song> AllSongs {
+            get { return _AllSongs.Value; }
+        }
+
         public ReactiveCommand TogglePlay { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
 
@@ -107,6 +113,9 @@ namespace Play.ViewModels
                 ret.Add(pusherSubj.Connect());
                 return ret;
             });
+
+            this.WhenAny(x => x.CurrentSong, x => x.Queue, (song, queue) => queue.Value.StartWith(song.Value))
+                .ToProperty(this, x => x.AllSongs);
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
         }
