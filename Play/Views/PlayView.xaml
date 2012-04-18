@@ -2,7 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:Routing="clr-namespace:ReactiveUI.Routing;assembly=ReactiveUI.Routing" x:Name="theView">
+             xmlns:Routing="clr-namespace:ReactiveUI.Routing;assembly=ReactiveUI.Routing"
+             x:Name="theView">
 
     <Grid DataContext="{Binding Path=ViewModel, ElementName=theView}">
         <Grid.RowDefinitions>
@@ -26,7 +27,11 @@
 
                 <MediaElement x:Name="mediaElement" Visibility="Hidden" />
 
-                <Button Content="Play" VerticalAlignment="Center" Grid.Row="1" Margin="8,0,0,0"/>
+                <Button VerticalAlignment="Center" Grid.Row="1" Margin="8,0,0,0" Style="{DynamicResource ImageButton}">
+                    <Button.Content>
+                        <Image Source="..\Images\PlayButton.png" Width="16" Height="16"/>
+                    </Button.Content>
+                </Button>
 
                 <StackPanel Orientation="Vertical" Margin="16,8,16,8" Grid.Column="1" Grid.Row="1">
                     <ProgressBar MinWidth="50" MinHeight="11" Style="{DynamicResource PlayProgressBarStyle}" Value="80" />
@@ -34,8 +39,10 @@
 
                 <TextBlock HorizontalAlignment="Center" Text="3:10" Foreground="Gray" FontSize="9"
                            Grid.Row="2" Grid.Column="1"/>
-                
-                <Button Grid.Row="1" Grid.Column="2" Content="Logout" VerticalAlignment="Center" Margin="0,0,8,0" Command="{Binding Logout}"/>
+
+                <Button Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="0,0,8,0" Command="{Binding Logout}" Style="{DynamicResource ImageButton}">
+                    <TextBlock Text="Logout" />
+                </Button>
             </Grid>
         </Border>
     
