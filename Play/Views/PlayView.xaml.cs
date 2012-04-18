@@ -63,5 +63,10 @@ namespace Play.Views
             get { return ViewModel; }
             set { ViewModel = (PlayViewModel)value; }
         }
+
+        private void ProgressBar_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+
+        }
     }
 }

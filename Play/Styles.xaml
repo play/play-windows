@@ -133,4 +133,5 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <SolidColorBrush x:Key="DefaultBackgroundBrush" Color="#FFE4E6EA"/>
 </ResourceDictionary>

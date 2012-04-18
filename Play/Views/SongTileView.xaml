@@ -6,24 +6,27 @@
              mc:Ignorable="d" x:Name="theView"
              d:DesignHeight="100" d:DesignWidth="300">
 
-    <Grid DataContext="{Binding Path=ViewModel, ElementName=theView}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-        </Grid.ColumnDefinitions>
+    <Border BorderThickness="0,0.5,0,0.5" BorderBrush="#FFD2D4D8">
+        <Grid DataContext="{Binding ViewModel, ElementName=theView}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Border Height="64" Margin="8" VerticalAlignment="Center" Width="64" BorderBrush="Black" BorderThickness="2" CornerRadius="2">
+                <Image Source="{Binding AlbumArt}" /> 
+            </Border>
+            <StackPanel Orientation="Vertical" Margin="0,8,8,0" VerticalAlignment="Top" Grid.Column="1">
+                <TextBlock FontWeight="Bold" Text="{Binding Model.name}" />
+                <TextBlock Text="{Binding Model.album}" />
+                <TextBlock Text="{Binding Model.artist}" />
+            </StackPanel>
 
-        <Image Source="{Binding AlbumArt}" Height="64" Width="64" VerticalAlignment="Center" Margin="8" />
-        <StackPanel Orientation="Vertical" Margin="0,8,8,0" VerticalAlignment="Top" Grid.Column="1">
-            <TextBlock FontWeight="Bold" Text="{Binding Path=Model.name}" />
-            <TextBlock Text="{Binding Path=Model.album}" />
-            <TextBlock Text="{Binding Path=Model.artist}" />
-        </StackPanel>
-
-        <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
-            <Button Content="Star" />
-            <Button Content="Download" />
-            <Button Content="Do Sth" />
-        </StackPanel>
-    </Grid>
+            <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
+                <Button Content="Star" />
+                <Button Content="Download" />
+                <Button Content="Do Sth" />
+            </StackPanel>
+        </Grid>
+    </Border>
 </UserControl>
