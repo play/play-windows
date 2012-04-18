@@ -3,6 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Routing="clr-namespace:ReactiveUI.Routing;assembly=ReactiveUI.Routing" Title="MainWindow" Height="350" Width="525">
     <Border Background="Black">
-        <Routing:RoutedViewHost Router="{Binding Router}" />
+        <Routing:RoutedViewHost Router="{Binding Router}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
     </Border>
 </Window>
