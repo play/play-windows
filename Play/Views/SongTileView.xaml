@@ -17,9 +17,17 @@
                 <Image Source="{Binding AlbumArt}" /> 
             </Border>
             <StackPanel Orientation="Vertical" Margin="0,8,8,0" VerticalAlignment="Top" Grid.Column="1">
-                <TextBlock FontWeight="Bold" Text="{Binding Model.name}" />
-                <TextBlock Text="{Binding Model.album}" />
-                <TextBlock Text="{Binding Model.artist}" />
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Style.Setters>
+                            <Setter Property="FontFamily" Value="Segoe UI Light" />
+                        </Style.Setters>
+                    </Style>
+                </StackPanel.Resources>
+
+                <TextBlock FontWeight="Bold" Text="{Binding Model.name}"  FontFamily="Segoe UI" FontSize="16"/>
+                <TextBlock Text="{Binding Model.album}"  TextOptions.TextRenderingMode="Grayscale" FontSize="14"/>
+                <TextBlock Text="{Binding Model.artist}" TextOptions.TextRenderingMode="Grayscale" FontSize="14"/>
             </StackPanel>
 
             <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
