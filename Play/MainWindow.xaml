@@ -4,7 +4,7 @@
         xmlns:Routing="clr-namespace:ReactiveUI.Routing;assembly=ReactiveUI.Routing"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:Play="clr-namespace:Play"
         Title="MainWindow" Height="350" Width="525"  WindowStartupLocation="CenterScreen"  
-        PreviewMouseMove="HandlePreviewMouseMove" PreviewMouseDown="HandleHeaderPreviewMouseDown">
+        PreviewMouseMove="HandlePreviewMouseMove" PreviewMouseDown="HandleHeaderPreviewMouseDown" Icon="App.ico">
 
     <i:Interaction.Behaviors>
         <Play:BorderlessWindowBehavior />
