@@ -105,10 +105,10 @@ namespace Play.ViewModels
             return url.StartsWith("http", StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public IObservable<Unit> ConnectToPlay(string baseUrl, string username)
+        public IObservable<Unit> ConnectToPlay(string baseUrl, string token)
         {
             var client = new RestClient(baseUrl);
-            client.AddDefaultParameter("login", username);
+            client.AddDefaultHeader("Authorization", token);
 
             var api = new PlayApi(client, null);
             return api.NowPlaying().Select(_ => Unit.Default);
