@@ -31,7 +31,7 @@
             </StackPanel>
 
             <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
-                <local:FadeImageToggleButton Margin="4" IsChecked="{Binding Path=Model.starred, Mode=OneWay}">
+                <local:FadeImageToggleButton Margin="4" IsChecked="{Binding Path=IsStarred, Mode=OneWay}" Command="{Binding ToggleStarred}">
                     <local:FadeImageToggleButton.Content>
                         <Canvas Background="#01888888" Width="16" Height="15">
                             <Viewbox>
