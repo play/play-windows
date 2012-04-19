@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -22,6 +23,7 @@ namespace Play.ViewModels
         string Token { get; set; }
         string ErrorMessage { get; }
         ReactiveCommand OkButton { get; }
+        ReactiveCommand OpenTokenPage { get; }
     }
 
     public class WelcomeViewModel : ReactiveObject, IWelcomeViewModel
@@ -44,6 +46,7 @@ namespace Play.ViewModels
         }
 
         public ReactiveCommand OkButton { get; protected set; }
+        public ReactiveCommand OpenTokenPage { get; protected set; }
 
         public string UrlPathSegment {
             get { return "login"; }
@@ -64,6 +67,8 @@ namespace Play.ViewModels
 
             OkButton = new ReactiveCommand(canOk);
 
+            OpenTokenPage = new ReactiveCommand(this.WhenAny(x => x.BaseUrl, x => isValidUrl(x.Value)));
+
             var connectToServer = connectToServerMock ?? ConnectToPlay;
 
             Observable.Defer(() => OkButton.SelectMany(_ => connectToServer(BaseUrl, Token)))
@@ -78,6 +83,8 @@ namespace Play.ViewModels
                     loginMethods.SaveCredentials(BaseUrl, Token);
                     screen.Router.NavigateBack.Execute(null);
                 });
+
+            OpenTokenPage.Subscribe(_ => Process.Start(String.Format("{0}/token", BaseUrl)));
 
             var error = new Subject<string>();
             UserError.RegisterHandler(ex => {

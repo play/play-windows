@@ -2,11 +2,32 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:Play"
              mc:Ignorable="d" x:Name="theView"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Border Padding="32" DataContext="{Binding Path=ViewModel, ElementName=theView}">
-        <Grid>
+
+    <Grid DataContext="{Binding Path=ViewModel, ElementName=theView}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border BorderBrush="Gray" BorderThickness="0,0,0,1">
+             <Grid Background="{DynamicResource HeaderBackgroundBrush}" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" MinHeight="20"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" MinHeight="8"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="1">
+                    <TextBlock Text="Play" FontFamily="/Play;component/Fonts/#Open Sans Semibold" FontSize="24" />
+                    <TextBlock Text="your office dj" Margin="6,0,0,0" VerticalAlignment="Top" Foreground="{DynamicResource HighlightGradientBrush}" FontFamily="/Play;component/Fonts/#Open Sans Light" TextOptions.TextFormattingMode="Display" />
+                </StackPanel>
+            </Grid>           
+        </Border>
+
+        <Grid Grid.Row="1" Background="#FFF3F3F3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -19,15 +40,15 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Play" Grid.ColumnSpan="2" Margin="32,8,0,8"/>
+            <TextBlock Text="Site URL:" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4"/>
+            <TextBlock Text="Token:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" Margin="4" />
 
-            <TextBlock Text="Site URL:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="1" />
-            <TextBlock Text="Token:" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Row="2" />
+            <TextBox Grid.Column="1" Text="{Binding BaseUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4" />
+            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Token, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="4" />
 
-            <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding BaseUrl, Mode=TwoWay}" />
-            <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Token, Mode=TwoWay}" />
+            <Button Grid.Column="1" Grid.Row="2" Content="Get Your Token" Margin="4" Command="{Binding OpenTokenPage}"/>
 
-            <Button Content="Ok" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Command="{Binding OkButton}" />
+            <Button Content="Ok" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Command="{Binding OkButton}" MinWidth="64" Margin="8"/>
         </Grid>
-    </Border>
+    </Grid>
 </UserControl>
