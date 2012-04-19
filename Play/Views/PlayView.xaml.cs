@@ -42,31 +42,25 @@ namespace Play.Views
             base.OnApplyTemplate();
             DataContext = ViewModel;
 
-            bool isPlaying = false;
             mediaElement.LoadedBehavior = MediaState.Manual;
 
             ViewModel.TogglePlay
                 .Where(_ => ViewModel.ListenUrl != null)
                 .Subscribe(nowPlayingUrl => {
-                    if (!isPlaying) {
+                    if (!ViewModel.IsPlaying) {
                         mediaElement.Source = new Uri(ViewModel.ListenUrl);
                         mediaElement.Play();
                     } else {
                         mediaElement.Stop();
                     }
-                        
-                    isPlaying = !isPlaying;
+
+                    ViewModel.IsPlaying = !ViewModel.IsPlaying;
                 });
         }
 
         object IViewForViewModel.ViewModel {
             get { return ViewModel; }
             set { ViewModel = (PlayViewModel)value; }
-        }
-
-        private void ProgressBar_ValueChanged_1(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-
         }
     }
 }
