@@ -73,7 +73,7 @@ namespace Play.ViewModels
             var blobCache = Kernel.Get<ISecureBlobCache>();
 
             blobCache.Invalidate("BaseUrl");
-            blobCache.Invalidate("Username");
+            blobCache.Invalidate("Token");
 
             Router.Navigate.Execute(Kernel.Get<IWelcomeViewModel>());
         }
@@ -83,7 +83,7 @@ namespace Play.ViewModels
             var blobCache = Kernel.Get<ISecureBlobCache>();
 
             blobCache.InsertObject("BaseUrl", baseUrl);
-            blobCache.InsertObject("Username", username);
+            blobCache.InsertObject("Token", username);
 
             CurrentAuthenticatedClient = createPlayApiFromCreds(baseUrl, username);
         }
@@ -93,7 +93,7 @@ namespace Play.ViewModels
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
             var baseUrl = await blobCache.GetObjectAsync<string>("BaseUrl");
-            var userName = await blobCache.GetObjectAsync<string>("Username");
+            var userName = await blobCache.GetObjectAsync<string>("Token");
 
             var ret = createPlayApiFromCreds(baseUrl, userName);
             CurrentAuthenticatedClient = ret;
@@ -141,7 +141,7 @@ namespace Play.ViewModels
     {
         public static void LoadAuthenticatedUserFromCache(ILoginMethods login, ISecureBlobCache loginCache)
         {
-            Observable.Zip(loginCache.GetObjectAsync<string>("BaseUrl"), loginCache.GetObjectAsync<string>("Username"),
+            Observable.Zip(loginCache.GetObjectAsync<string>("BaseUrl"), loginCache.GetObjectAsync<string>("Token"),
                 (url, name) => new Tuple<string, string>(url, name))
                 .Catch(Observable.Return<Tuple<string, string>>(null))
                 .Subscribe(x => {

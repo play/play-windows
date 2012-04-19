@@ -19,7 +19,7 @@ namespace Play.ViewModels
     public interface IWelcomeViewModel : IRoutableViewModel
     {
         string BaseUrl { get; set; }
-        string Username { get; set; }
+        string Token { get; set; }
         string ErrorMessage { get; }
         ReactiveCommand OkButton { get; }
     }
@@ -32,10 +32,10 @@ namespace Play.ViewModels
             set { this.RaiseAndSetIfChanged(x => x.BaseUrl, value); }
         }
 
-        string _Username;
-        public string Username {
-            get { return _Username; }
-            set { this.RaiseAndSetIfChanged(x => x.Username, value); }
+        string _Token;
+        public string Token {
+            get { return _Token; }
+            set { this.RaiseAndSetIfChanged(x => x.Token, value); }
         }
 
         ObservableAsPropertyHelper<string> _ErrorMessage;
@@ -59,14 +59,14 @@ namespace Play.ViewModels
         {
             HostScreen = screen;
 
-            var canOk = this.WhenAny(x => x.BaseUrl, x => x.Username,
+            var canOk = this.WhenAny(x => x.BaseUrl, x => x.Token,
                 (b, u) => isValidUrl(b.Value) && !String.IsNullOrWhiteSpace(u.Value));
 
             OkButton = new ReactiveCommand(canOk);
 
             var connectToServer = connectToServerMock ?? ConnectToPlay;
 
-            Observable.Defer(() => OkButton.SelectMany(_ => connectToServer(BaseUrl, Username)))
+            Observable.Defer(() => OkButton.SelectMany(_ => connectToServer(BaseUrl, Token)))
                 .Select(_ => true).Catch(Observable.Return(false))
                 .Repeat()
                 .Subscribe(result => {
@@ -75,7 +75,7 @@ namespace Play.ViewModels
                         return;
                     }
 
-                    loginMethods.SaveCredentials(BaseUrl, Username);
+                    loginMethods.SaveCredentials(BaseUrl, Token);
                     screen.Router.NavigateBack.Execute(null);
                 });
 
@@ -85,7 +85,7 @@ namespace Play.ViewModels
                 return Observable.Return(RecoveryOptionResult.CancelOperation);
             });
 
-            this.WhenAny(x => x.Username, x => x.BaseUrl, (_, __) => Unit.Default)
+            this.WhenAny(x => x.Token, x => x.BaseUrl, (_, __) => Unit.Default)
                 .Subscribe(_ => error.OnNext(null));
 
             error.ToProperty(this, x => x.ErrorMessage);

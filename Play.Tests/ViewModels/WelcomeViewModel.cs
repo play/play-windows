@@ -32,14 +32,14 @@ namespace Play.Tests.ViewModels
             var fixture = kernel.Get<IWelcomeViewModel>();
 
             String.IsNullOrWhiteSpace(fixture.BaseUrl).Should().BeTrue();
-            String.IsNullOrWhiteSpace(fixture.Username).Should().BeTrue();
+            String.IsNullOrWhiteSpace(fixture.Token).Should().BeTrue();
 
             fixture.OkButton.CanExecute(null).Should().BeFalse();
 
             fixture.BaseUrl = "http://www.example.com";
             fixture.OkButton.CanExecute(null).Should().BeFalse();
 
-            fixture.Username = "foo";
+            fixture.Token = "foo";
             fixture.OkButton.CanExecute(null).Should().BeTrue();
         }
 
@@ -52,7 +52,7 @@ namespace Play.Tests.ViewModels
             var fixture = kernel.Get<IWelcomeViewModel>();
 
             fixture.BaseUrl = "Foobar";
-            fixture.Username = "foo";
+            fixture.Token = "foo";
             fixture.OkButton.CanExecute(null).Should().BeFalse();
 
             fixture.BaseUrl = "ftp://google.com";
@@ -82,7 +82,7 @@ namespace Play.Tests.ViewModels
 
             bool errorThrown = false;
             using (UserError.OverrideHandlersForTesting(ex => { errorThrown = true; return Observable.Return(RecoveryOptionResult.CancelOperation); })) {
-                fixture.Username = "Foo";
+                fixture.Token = "Foo";
                 fixture.BaseUrl = "http://bar";
                 fixture.OkButton.Execute(null);
             }
@@ -119,7 +119,7 @@ namespace Play.Tests.ViewModels
             string expectedUser = "Foo";
             string expectedUrl = "http://bar";
             using (UserError.OverrideHandlersForTesting(ex => { errorThrown = true; return Observable.Return(RecoveryOptionResult.CancelOperation); })) {
-                fixture.Username = expectedUser;
+                fixture.Token = expectedUser;
                 fixture.BaseUrl = expectedUrl;
                 fixture.OkButton.Execute(null);
             }
@@ -159,7 +159,7 @@ namespace Play.Tests.ViewModels
 
             bool errorThrown = false;
             using (UserError.OverrideHandlersForTesting(ex => { errorThrown = true; return Observable.Return(RecoveryOptionResult.CancelOperation); })) {
-                fixture.Username = expectedUser;
+                fixture.Token = expectedUser;
                 fixture.BaseUrl = expectedUrl;
                 fixture.OkButton.Execute(null);
             }
@@ -195,7 +195,7 @@ namespace Play.Tests.ViewModels
             kernel.Get<IScreen>().Router.Navigate.Execute(fixture);
 
             fixture.BaseUrl = IntegrationTestUrl.Current;
-            fixture.Username = dummyUser;
+            fixture.Token = dummyUser;
             fixture.OkButton.Execute(null);
 
             kernel.Get<IScreen>().Router.ViewModelObservable().Skip(1)
