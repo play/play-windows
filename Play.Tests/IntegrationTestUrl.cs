@@ -15,6 +15,13 @@ namespace Play.Tests
             } 
         }
 
+        public static string Token {
+            get {
+                //return "a04d03";
+                throw new Exception("Configure IntegrationTestUrl.cs first");
+            } 
+        }
+
         public static string PusherApiKey {
             get {
                 //return "a04d03ca023f0ab99a";
