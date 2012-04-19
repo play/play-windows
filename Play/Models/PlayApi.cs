@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Akavache;
 using Ninject;
+using PusherClientDotNet;
 using ReactiveUI;
 using RestSharp;
 using RestSharp.Contrib;
@@ -29,6 +30,12 @@ namespace Play.Models
         IObservable<List<Song>> AllSongsOnAlbum(string artist, string album);
 
         IObservable<Unit> ConnectToSongChangeNotifications();
+    }
+
+    public class StreamingInfo
+    {
+        public string stream_url { get; set; }
+        public string pusher_key { get; set; }
     }
 
     public class PlayApi : IPlayApi, IEnableLogger
@@ -119,14 +126,17 @@ namespace Play.Models
 
         public IObservable<Unit> ConnectToSongChangeNotifications()
         {
-            return Observable.Never<Unit>();
+            var rq = new RestRequest("streaming_info");
+
+            return client.RequestAsync<StreamingInfo>(rq)
+                .SelectMany(x => PusherHelper.Connect<object>(() => new Pusher(x.Data.pusher_key), "now_playing_updates", "update_now_playing"))
+                .Select(_ => Unit.Default);
         }
 
         public IObservable<string> ListenUrl()
         {
-            var uri = new Uri(client.BaseUrl);
-            return Observable.Return(
-                String.Format("{0}:8000/listen", uri.GetLeftPart(UriPartial.Authority).Replace("https", "http")));
+            var rq = new RestRequest("streaming_info");
+            return client.RequestAsync<StreamingInfo>(rq).Select(x => x.Data.stream_url);
         }
     }
 }
