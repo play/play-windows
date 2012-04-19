@@ -23,7 +23,7 @@ namespace Play.Tests.Models
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
 
-            client.AddDefaultParameter("login", "xpaulbettsx");
+            client.AddDefaultHeader("Authorization", IntegrationTestUrl.Token);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var api = new PlayApi(client, kernel.Get<IBlobCache>());
@@ -42,7 +42,7 @@ namespace Play.Tests.Models
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
 
-            client.AddDefaultParameter("login", "xpaulbettsx");
+            client.AddDefaultHeader("Authorization", IntegrationTestUrl.Token);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var api = new PlayApi(client, kernel.Get<IBlobCache>());
@@ -61,7 +61,7 @@ namespace Play.Tests.Models
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
 
-            client.AddDefaultParameter("login", "xpaulbettsx");
+            client.AddDefaultHeader("Authorization", IntegrationTestUrl.Token);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var api = new PlayApi(client, kernel.Get<IBlobCache>());
@@ -80,7 +80,7 @@ namespace Play.Tests.Models
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
 
-            client.AddDefaultParameter("login", "xpaulbettsx");
+            client.AddDefaultHeader("Authorization", IntegrationTestUrl.Token);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var api = new PlayApi(client, kernel.Get<IBlobCache>());
@@ -99,7 +99,7 @@ namespace Play.Tests.Models
             var kernel = new MoqMockingKernel();
             var client = new RestClient(IntegrationTestUrl.Current);
 
-            client.AddDefaultParameter("login", "xpaulbettsx");
+            client.AddDefaultHeader("Authorization", IntegrationTestUrl.Token);
             kernel.Bind<IBlobCache>().To<TestBlobCache>();
 
             var api = new PlayApi(client, kernel.Get<IBlobCache>());
