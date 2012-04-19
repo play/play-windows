@@ -6,7 +6,7 @@
              mc:Ignorable="d" x:Name="theView"
              d:DesignHeight="100" d:DesignWidth="300">
 
-    <Border BorderThickness="0,0.5,0,0.5" BorderBrush="#FFD2D4D8">
+    <Border BorderThickness="0,0,0,1" BorderBrush="LightGray">
         <Grid DataContext="{Binding ViewModel, ElementName=theView}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -20,14 +20,14 @@
                 <StackPanel.Resources>
                     <Style TargetType="{x:Type TextBlock}">
                         <Style.Setters>
-                            <Setter Property="FontFamily" Value="Segoe UI Light" />
+                            <Setter Property="FontFamily" Value="/Play;component/Fonts/#Open Sans Light" />
                         </Style.Setters>
                     </Style>
                 </StackPanel.Resources>
 
-                <TextBlock FontWeight="Bold" Text="{Binding Model.name}"  FontFamily="Segoe UI" FontSize="16"/>
-                <TextBlock Text="{Binding Model.album}"  TextOptions.TextRenderingMode="Grayscale" FontSize="14"/>
-                <TextBlock Text="{Binding Model.artist}" TextOptions.TextRenderingMode="Grayscale" FontSize="14"/>
+                <TextBlock FontWeight="Bold" Text="{Binding Model.name}"  FontFamily="/Play;component/Fonts/#Open Sans Semibold" FontSize="17"/>
+                <TextBlock Text="{Binding Model.artist}" FontSize="13" />
+                <TextBlock Text="{Binding Model.album}" FontSize="13" Foreground="{DynamicResource ButtonNormalForeground}"/>
             </StackPanel>
 
             <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
