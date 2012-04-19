@@ -83,8 +83,7 @@ namespace Play.Models
 
         public IObservable<BitmapImage> FetchImageForAlbum(Song song)
         {
-            var user = client.DefaultParameters.First(x => x.Name == "login").Value;
-            var rq = new RestRequest(String.Format("images/art/{0}.png?login={1}", song.id, user));
+            var rq = new RestRequest(String.Format("images/art/{0}.png", song.id));
 
             var fullUrl = client.BuildUri(rq).ToString();
             this.Log().Info("Fetching URL for image: {0}", fullUrl);
