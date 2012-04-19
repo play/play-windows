@@ -21,7 +21,18 @@ namespace Play.Models
         public string artist { get; set; }
         public string name { get; set; }
         public string id { get; set; }
+        public string last_played { get; set; }
 // ReSharper restore InconsistentNaming
+
+        public DateTimeOffset? LastPlayedAsDate {
+            get {
+                if (String.IsNullOrWhiteSpace(last_played)) {
+                    return null;
+                }
+
+                return DateTimeOffset.Parse(last_played);
+            } 
+        }
 
         public bool Equals(Song other)
         {
