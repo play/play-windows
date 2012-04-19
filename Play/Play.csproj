@@ -212,7 +212,7 @@
     <Resource Include="Images\PlayButton.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\DeadPlayButton.png" />
+    <Resource Include="Images\StopButton.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

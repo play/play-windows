@@ -27,12 +27,12 @@
 
                 <MediaElement x:Name="mediaElement" Visibility="Hidden" />
 
-                <local:FadeImageToggleButton VerticalAlignment="Center" Grid.Row="1" Margin="8,0,0,0" IsChecked="{Binding IsPlaying}">
+                <local:FadeImageToggleButton VerticalAlignment="Center" Grid.Row="1" Margin="8,0,0,0" IsChecked="{Binding IsPlaying, Mode=OneWay}" Command="{Binding TogglePlay}" SnapsToDevicePixels="True">
                     <local:FadeImageToggleButton.Content>
-                        <Image Source="..\Images\DeadPlayButton.png" Width="16" Height="16"/>
+                        <Image Source="..\Images\PlayButton.png" Width="24" Height="24" />
                     </local:FadeImageToggleButton.Content>
                     <local:FadeImageToggleButton.HighlightContent>
-                        <Image Source="..\Images\PlayButton.png" Width="16" Height="16"/>
+                        <Image Source="..\Images\StopButton.png" Width="24" Height="24"/>
                     </local:FadeImageToggleButton.HighlightContent>
                 </local:FadeImageToggleButton>
 
