@@ -31,24 +31,24 @@
             </StackPanel>
 
             <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">
-                <local:FadeImageButton Margin="4">
-                    <local:FadeImageButton.Content>
+                <local:FadeImageToggleButton Margin="4" IsChecked="{Binding Path=Model.starred, Mode=OneWay}">
+                    <local:FadeImageToggleButton.Content>
                         <Canvas Background="#01888888" Width="16" Height="15">
                             <Viewbox>
                                 <Path Fill="{DynamicResource ButtonNormalForeground}"
                                       Data=" M 8.000,0.000 L 9.931,5.484 L 16.000,5.730 L 11.530,9.420 L 12.940,15.000 L 8.000,11.951 L 3.050,15.000 L 4.460,9.420 L 0.000,5.730 L 5.822,5.516 L 8.000,0.000 Z"/>
                             </Viewbox>
                         </Canvas>
-                    </local:FadeImageButton.Content>
-                    <local:FadeImageButton.HighlightContent>
+                    </local:FadeImageToggleButton.Content>
+                    <local:FadeImageToggleButton.HighlightContent>
                         <Canvas Background="#01888888" Width="16" Height="15">
                             <Viewbox>
                                 <Path Fill="{DynamicResource HighlightGradientBrush}"
                                       Data=" M 8.000,0.000 L 9.931,5.484 L 16.000,5.730 L 11.530,9.420 L 12.940,15.000 L 8.000,11.951 L 3.050,15.000 L 4.460,9.420 L 0.000,5.730 L 5.822,5.516 L 8.000,0.000 Z"/>
                             </Viewbox>
                         </Canvas>
-                    </local:FadeImageButton.HighlightContent>
-                </local:FadeImageButton>
+                    </local:FadeImageToggleButton.HighlightContent>
+                </local:FadeImageToggleButton>
 
                 <local:FadeImageButton Margin="4">
                     <local:FadeImageButton.Content>
