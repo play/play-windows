@@ -68,8 +68,8 @@
                 </local:FadeImageButton>
             </Grid>
         </Border>
-    
-        <ScrollViewer Grid.Row="1" MinHeight="120" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+
+        <ScrollViewer Grid.Row="1" MinHeight="120" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Background="#FFCFD1D1">
             <ItemsControl ItemsSource="{Binding AllSongs}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
