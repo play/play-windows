@@ -62,6 +62,12 @@ namespace Play.ViewModels
             get { return _AllSongs.Value; }
         }
 
+        bool _IsPlaying;
+        public bool IsPlaying {
+            get { return _IsPlaying; }
+            set { this.RaiseAndSetIfChanged(x => x.IsPlaying, value); }
+        }
+
         public ReactiveCommand TogglePlay { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
 

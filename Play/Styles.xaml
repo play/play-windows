@@ -2,6 +2,15 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Play">
 
+    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" x:Key="HighlightGradientBrush">
+        <GradientStop Color="#FFCA4BCB" Offset="0.057"/>
+        <GradientStop Color="#FFFA5BFD" Offset="0.115"/>
+        <GradientStop Color="#FFF24BF9" Offset="0.541"/>
+        <GradientStop Color="#FFE123F1" Offset="0.885"/>
+    </LinearGradientBrush>
+
+    <SolidColorBrush Color="#FF000000" x:Key="ButtonNormalForeground" />
+
     <LinearGradientBrush x:Key="HeaderBackgroundBrush" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="#FFCFD1D1" Offset="0.212"/>
         <GradientStop Color="#FFBCBCBC" Offset="0.811"/>
@@ -67,16 +76,7 @@
                         <Rectangle x:Name="PART_Track" Margin="1"/>
                         <Decorator x:Name="PART_Indicator" HorizontalAlignment="Left" Margin="1">
                             <Grid x:Name="Foreground">
-                                <Border x:Name="Indicator" CornerRadius="4" BorderBrush="#FF832E83" BorderThickness="0,1,0,0">
-                                    <Border.Background>
-                                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                                            <GradientStop Color="#FFCA4BCB" Offset="0.057"/>
-                                            <GradientStop Color="#FFFA5BFD" Offset="0.115"/>
-                                            <GradientStop Color="#FFF24BF9" Offset="0.541"/>
-                                            <GradientStop Color="#FFE123F1" Offset="0.885"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                </Border>
+                                <Border x:Name="Indicator" CornerRadius="4" BorderBrush="#FF832E83" BorderThickness="0,1,0,0" Background="{StaticResource HighlightGradientBrush}" />
                                 <Grid x:Name="Animation" ClipToBounds="true" Visibility="Hidden">
                                     <Rectangle x:Name="PART_GlowRect" Fill="{StaticResource ProgressBarIndicatorAnimatedFill}" HorizontalAlignment="Left" Margin="-100,0,0,0" Width="100" />
                                 </Grid>
@@ -135,50 +135,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <SolidColorBrush x:Key="DefaultBackgroundBrush" Color="#FFE4E6EA"/>
-    <Style x:Key="ButtonFocusVisual">
-        <Setter Property="Control.Template">
-            <Setter.Value>
-                <ControlTemplate>
-                    <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" StrokeThickness="1" StrokeDashArray="1 2"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-    <LinearGradientBrush x:Key="ButtonNormalBackground" EndPoint="0,1" StartPoint="0,0">
-        <GradientStop Color="#F3F3F3" Offset="0"/>
-        <GradientStop Color="#EBEBEB" Offset="0.5"/>
-        <GradientStop Color="#DDDDDD" Offset="0.5"/>
-        <GradientStop Color="#CDCDCD" Offset="1"/>
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="ButtonNormalBorder" Color="#FF707070"/>
-    <Style x:Key="ImageButton" TargetType="{x:Type Button}">
-        <Setter Property="FocusVisualStyle" Value="{StaticResource ButtonFocusVisual}"/>
-        <Setter Property="Background" Value="{StaticResource ButtonNormalBackground}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalBorder}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="1"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Button}">
-                    <Border>
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="#FFFA5BFD" />
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="#ADADAD"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-    <SolidColorBrush x:Key="ButtonNormalForeground" Color="#FF424242"/>
 
     <Style TargetType="{x:Type local:FadeImageButton}">
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -259,8 +215,7 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:FadeImageButton}">
-
+                <ControlTemplate TargetType="{x:Type local:FadeImageToggleButton}">
                     <Grid x:Name="grid">
                         <Grid.Effect>
                             <BlurEffect Radius="0"/>

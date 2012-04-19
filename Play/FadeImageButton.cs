@@ -26,6 +26,6 @@ namespace Play
             set { SetValue(HighlightContentProperty, value); }
         }
         public static readonly DependencyProperty HighlightContentProperty =
-            DependencyProperty.Register("HighlightContent", typeof(object), typeof(FadeImageButton), new UIPropertyMetadata(null));
+            DependencyProperty.Register("HighlightContent", typeof(object), typeof(FadeImageToggleButton), new UIPropertyMetadata(null));
     }
 }
