@@ -146,17 +146,16 @@ namespace Play.Tests.ViewModels
                 sched.AdvanceToMs(1010);
                 nowPlayingExecuteCount.Should().Be(2);
 
-                // NB: The 4 minute timer starts after the last Pusher notification
+                // NB: The 2 minute timer starts after the last Pusher notification
                 // make sure we *don't* tick.
-                sched.AdvanceToMs(4*60*1000 + 10);
+                sched.AdvanceToMs(2*60*1000 + 10);
                 nowPlayingExecuteCount.Should().Be(2);
 
-                sched.AdvanceToMs(5*60*1000 + 1500);
+                sched.AdvanceToMs(3*60*1000 + 1500);
                 nowPlayingExecuteCount.Should().Be(3);
             });
             
         }
-
 
         IPlayViewModel setupStandardMock(MoqMockingKernel kernel, IRoutingState router, Action extraSetup = null)
         {
