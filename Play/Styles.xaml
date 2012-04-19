@@ -280,4 +280,75 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Window Chrome Buttons -->
+    <ControlTemplate x:Key="ChromeButtonControlTemplate" TargetType="{x:Type ButtonBase}">
+        <Border x:Name="Chrome" BorderBrush="{TemplateBinding BorderBrush}" Margin="0" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+            <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"
+                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="#FFADADAD" />
+                <Setter Property="Opacity" TargetName="Chrome" Value="0.5" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="ChromeButtonTextBlockStyle" TargetType="{x:Type TextBlock}">
+        <Style.Resources>
+            <Color x:Key="ChromeForegroundColor">#999999</Color>
+            <Color x:Key="ChromeMouseOverColor">#666666</Color>
+            <SolidColorBrush x:Key="ChromeForegroundBrush" Color="{StaticResource ChromeForegroundColor}" />
+            <Storyboard x:Key="OnMouseEnterStoryboard">
+                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="{x:Null}" To="{StaticResource ChromeMouseOverColor}" Duration="0:0:0" />
+            </Storyboard>
+            <Storyboard x:Key="OnMouseLeaveStoryboard">
+                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" Storyboard.TargetName="{x:Null}" To="{StaticResource ChromeForegroundColor}" Duration="0" />
+            </Storyboard>
+        </Style.Resources>
+        <Setter Property="Foreground" Value="{StaticResource ChromeForegroundBrush}" />
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                <BeginStoryboard x:Name="OnMouseEnter_BeginStoryboard" Storyboard="{StaticResource OnMouseEnterStoryboard}" />
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                <BeginStoryboard x:Name="OnMouseLeave_BeginStoryboard" Storyboard="{StaticResource OnMouseLeaveStoryboard}" />
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ChromeButtonStyle" TargetType="{x:Type Button}">
+        <Style.Resources>
+            <Storyboard x:Key="OnMouseDownStoryboard">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="{x:Null}">
+                    <EasingDoubleKeyFrame KeyTime="0" Value="0.5" />
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+            <Storyboard x:Key="OnMouseUpStoryboard">
+                <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="{x:Null}">
+                    <EasingDoubleKeyFrame KeyTime="0" Value="1" />
+                </DoubleAnimationUsingKeyFrames>
+            </Storyboard>
+        </Style.Resources>
+        <Setter Property="Background" Value="#00000000" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template" Value="{StaticResource ChromeButtonControlTemplate}" />
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5" />
+            </Trigger>
+            <EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                <BeginStoryboard x:Name="OnMouseDown_BeginStoryboard" Storyboard="{StaticResource OnMouseDownStoryboard}" />
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+                <BeginStoryboard x:Name="OnMouseUp_BeginStoryboard" Storyboard="{StaticResource OnMouseUpStoryboard}" />
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+    <!-- End Window Chrome Buttons -->
 </ResourceDictionary>

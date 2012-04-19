@@ -94,6 +94,7 @@
     <Reference Include="System.Interactive">
       <HintPath>..\packages\Ix_Experimental-Main.1.1.10823\lib\Net4\System.Interactive.dll</HintPath>
     </Reference>
+    <Reference Include="System.Management" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\ext\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -132,7 +133,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BorderlessWindowBehavior.cs" />
     <Compile Include="FadeImageButton.cs" />
+    <Compile Include="HardwareRenderingHelper.cs" />
     <Compile Include="Models\PlayApi.cs" />
     <Compile Include="Models\PusherHelper.cs" />
     <Compile Include="Models\Song.cs" />
