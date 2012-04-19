@@ -93,18 +93,18 @@ namespace Play.ViewModels
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
             var baseUrl = await blobCache.GetObjectAsync<string>("BaseUrl");
-            var userName = await blobCache.GetObjectAsync<string>("Token");
+            var token = await blobCache.GetObjectAsync<string>("Token");
 
-            var ret = createPlayApiFromCreds(baseUrl, userName);
+            var ret = createPlayApiFromCreds(baseUrl, token);
             CurrentAuthenticatedClient = ret;
             return ret;
         }
 
-        PlayApi createPlayApiFromCreds(string baseUrl, string userName)
+        PlayApi createPlayApiFromCreds(string baseUrl, string token)
         {
             var localMachine = Kernel.Get<IBlobCache>("LocalMachine");
             var rc = new RestClient(baseUrl);
-            rc.AddDefaultParameter("login", userName);
+            rc.AddDefaultHeader("Authorization", token);
 
             var ret = new PlayApi(rc, localMachine);
             return ret;
