@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using PusherClientDotNet;
+using ReactiveUI;
 
 namespace Play.Models
 {
@@ -22,15 +23,22 @@ namespace Play.Models
                     pusher.Connect();
                     disp.Add(Disposable.Create(pusher.Disconnect));
 
-                    var ch = pusher.Subscribe(channel);
-                    disp.Add(Disposable.Create(() => pusher.Unsubscribe(channel)));
+                    // NB: Pusher is racey, give it some time to connect
+                    var postConnect = Observable.Start(() => {
+                        var ch = pusher.Subscribe(channel);
+                        disp.Add(Disposable.Create(() => pusher.Unsubscribe(channel)));
 
-                    ch.Bind(eventName, x => {
-                        if (hasCompleted) return;
-                        subj.OnNext((T)x);
-                    });
+                        ch.Bind(eventName, x => {
+                            if (hasCompleted) return;
+                            subj.OnNext((T) x);
+                        });
 
-                    disp.Add(Disposable.Create(ch.Disconnect));
+                        disp.Add(Disposable.Create(ch.Disconnect));
+                    }, RxApp.TaskpoolScheduler);
+
+                    postConnect.Subscribe(_ => { },
+                        ex => LogHost.Default.WarnException("Couldn't connect to Pusher", ex));
+
                 } catch (Exception ex) {
                     subj.OnError(ex);
                     hasCompleted = true;
