@@ -36,12 +36,11 @@
                     </local:FadeImageToggleButton.HighlightContent>
                 </local:FadeImageToggleButton>
 
-                <StackPanel Orientation="Vertical" Margin="16,8,16,8" Grid.Column="1" Grid.Row="1">
+                <StackPanel Orientation="Vertical" Margin="16,8,16,8" Grid.Column="1" Grid.Row="1" Visibility="Hidden">
                     <ProgressBar MinWidth="50" MinHeight="11" Style="{DynamicResource PlayProgressBarStyle}" Value="80" />
                 </StackPanel>
 
-                <TextBlock HorizontalAlignment="Center" Text="3:10" Foreground="Gray" FontSize="9"
-                           Grid.Row="2" Grid.Column="1"/>
+                <TextBlock HorizontalAlignment="Center" Text="3:10" Foreground="Gray" FontSize="9" Grid.Row="2" Grid.Column="1" Visibility="Hidden"/>
 
                 <local:FadeImageButton Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Margin="0,0,12,0" 
                         Command="{Binding Logout}">
