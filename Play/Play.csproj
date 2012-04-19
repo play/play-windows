@@ -129,6 +129,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FadeImageButton.cs" />
     <Compile Include="Models\PlayApi.cs" />
     <Compile Include="Models\PusherHelper.cs" />
     <Compile Include="Models\Song.cs" />
