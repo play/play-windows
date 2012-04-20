@@ -22,11 +22,13 @@
                     <Style TargetType="{x:Type TextBlock}">
                         <Style.Setters>
                             <Setter Property="FontFamily" Value="/Play;component/Fonts/#Open Sans Light" />
+                            <Setter Property="TextWrapping" Value="NoWrap" />
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
                         </Style.Setters>
                     </Style>
                 </StackPanel.Resources>
 
-                <TextBlock FontWeight="Bold" Text="{Binding Model.name}"  FontFamily="/Play;component/Fonts/#Open Sans Semibold" FontSize="17"/>
+                <TextBlock FontWeight="Bold" Text="{Binding Model.name}"  FontFamily="/Play;component/Fonts/#Open Sans Semibold" FontSize="17" />
                 <TextBlock Text="{Binding Model.artist}" FontSize="13" />
                 <TextBlock Text="{Binding Model.album}" FontSize="13" Foreground="{DynamicResource ButtonNormalForeground}"/>
 
