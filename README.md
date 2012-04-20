@@ -1,0 +1,5 @@
+# Play for Windows
+
+## [Click Here To Install](http://play-windows.s3.amazonaws.com/setup.exe)
+
+![](https://a248.e.akamai.net/camo.github.com/52c8cfd754ea5ac0c9455eff32831582d16395e9/687474703a2f2f636c2e6c792f33443075334e3130324f3144306d3167334231592f496d616765253230323031322e30342e3139253230323a33353a3534253230414d2e706e67)
