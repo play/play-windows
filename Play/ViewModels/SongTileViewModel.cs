@@ -58,7 +58,9 @@ namespace Play.ViewModels
         {
             Model = model;
 
-            playApi.FetchImageForAlbum(model).ToProperty(this, x => x.AlbumArt);
+            playApi.FetchImageForAlbum(model)
+                .LoggedCatch(this, Observable.Return(default(BitmapImage)))
+                .ToProperty(this, x => x.AlbumArt);
 
             QueueSong = new ReactiveAsyncCommand();
             QueueAlbum = new ReactiveAsyncCommand();
@@ -75,6 +77,8 @@ namespace Play.ViewModels
                     x => this.Log().Info("Queued song"),
                     ex => this.Log().WarnException("Failed to queue album", ex));
 
+            QueueAlbum.ThrownExceptions.Subscribe(x => { });
+
             IsStarred = model.starred;
             ToggleStarred = new ReactiveAsyncCommand();
 
@@ -82,7 +86,9 @@ namespace Play.ViewModels
                 .Select(_ => true).LoggedCatch(this, Observable.Return(false))
                 .Subscribe(result => {
                     if (result) IsStarred = !IsStarred;
-                });
+                }, ex => this.Log().WarnException("Couldn't star/unstar song", ex));
+
+            ToggleStarred.ThrownExceptions.Subscribe(x => { });
         }
 
         IObservable<Unit> reallyTryToQueueSong(IPlayApi playApi, Song song)

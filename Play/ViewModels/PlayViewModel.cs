@@ -94,7 +94,11 @@ namespace Play.ViewModels
                     return null;
                 }
 
-                playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
+                // Get the Listen URL or die trying
+                Observable.Defer(playApi.ListenUrl)
+                    .Timeout(TimeSpan.FromSeconds(30), RxApp.TaskpoolScheduler)
+                    .Retry()
+                    .ToProperty(this, x => x.ListenUrl);
 
                 var pusherSubj = playApi.ConnectToSongChangeNotifications()
                     .Retry(25)
@@ -107,9 +111,13 @@ namespace Play.ViewModels
                     .Multicast(new Subject<Unit>());
 
                 var nowPlaying = shouldUpdate.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
-                shouldUpdate.SelectMany(_ => playApi.Queue()).ToProperty(this, x => x.Queue);
+                shouldUpdate.SelectMany(_ => playApi.Queue())
+                    .Catch(Observable.Return(Enumerable.Empty<Song>()))
+                    .ToProperty(this, x => x.Queue);
 
-                nowPlaying.ToProperty(this, x => x.CurrentSong);
+                nowPlaying
+                    .Catch(Observable.Return(new Song()))
+                    .ToProperty(this, x => x.CurrentSong);
 
                 this.WhenAny(x => x.CurrentSong, x => x.Queue, 
                         (song, queue) => (queue.Value != null && song.Value != null ? queue.Value.StartWith(song.Value) : Enumerable.Empty<Song>()))

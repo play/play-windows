@@ -75,11 +75,14 @@ namespace Play.ViewModels
             SearchResults = searchResults
                 .Do(_ => SearchResults.Clear())
                 .SelectMany(list => list.ToObservable())
+                .LoggedCatch(this, Observable.Empty<Song>())
                 .CreateCollection(x => (ISongTileViewModel) new SongTileViewModel(x, playApi));
 
             PerformSearch.ItemsInflight.StartWith(0)
                 .Select(x => x > 0 ? Visibility.Visible : Visibility.Hidden)
                 .ToProperty(this, x => x.SearchBusySpinner);
+
+            PerformSearch.ThrownExceptions.Subscribe(_ => { });
 
             GoBack = new ReactiveCommand();
             GoBack.InvokeCommand(hostScreen.Router.NavigateBack);
