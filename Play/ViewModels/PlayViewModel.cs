@@ -7,6 +7,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using Ninject;
 using Play.Models;
@@ -113,7 +114,7 @@ namespace Play.ViewModels
                 this.WhenAny(x => x.CurrentSong, x => x.Queue, 
                         (song, queue) => (queue.Value != null && song.Value != null ? queue.Value.StartWith(song.Value) : Enumerable.Empty<Song>()))
                     .Do(x => this.Log().Info("Found {0} items", x.Count()))
-                    .Select(x => x.Select(y => new SongTileViewModel(y, loginMethods.CurrentAuthenticatedClient)))
+                    .Select(x => x.Select(y => new SongTileViewModel(y, loginMethods.CurrentAuthenticatedClient) { QueueSongVisibility = Visibility.Collapsed }))
                     .ToProperty(this, x => x.AllSongs);
 
                 var ret = new CompositeDisposable();

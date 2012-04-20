@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:local="clr-namespace:Play"
              mc:Ignorable="d" x:Name="theView"
-             d:DesignHeight="100" d:DesignWidth="300">
+             d:DesignHeight="100" d:DesignWidth="600">
 
     <Border BorderThickness="0,0,0,1" BorderBrush="LightGray">
         <Grid DataContext="{Binding ViewModel, ElementName=theView}">
@@ -16,6 +16,7 @@
             <Border Height="64" Margin="8" VerticalAlignment="Center" Width="64" BorderBrush="Black" BorderThickness="2" CornerRadius="2">
                 <Image Source="{Binding AlbumArt}" /> 
             </Border>
+
             <StackPanel Orientation="Vertical" Margin="0,8,8,0" VerticalAlignment="Top" Grid.Column="1">
                 <StackPanel.Resources>
                     <Style TargetType="{x:Type TextBlock}">
@@ -28,6 +29,26 @@
                 <TextBlock FontWeight="Bold" Text="{Binding Model.name}"  FontFamily="/Play;component/Fonts/#Open Sans Semibold" FontSize="17"/>
                 <TextBlock Text="{Binding Model.artist}" FontSize="13" />
                 <TextBlock Text="{Binding Model.album}" FontSize="13" Foreground="{DynamicResource ButtonNormalForeground}"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8" HorizontalAlignment="Right">
+                    <local:FadeImageButton Command="{Binding QueueSong}" Visibility="{Binding QueueSongVisibility}">
+                        <local:FadeImageButton.Content>
+                            <TextBlock Text="queue this song" Foreground="{DynamicResource ButtonNormalForeground}" />
+                        </local:FadeImageButton.Content>
+                        <local:FadeImageButton.HighlightContent>
+                            <TextBlock Text="queue this song" Foreground="{DynamicResource HighlightGradientBrush}" />
+                        </local:FadeImageButton.HighlightContent>
+                    </local:FadeImageButton>
+
+                    <local:FadeImageButton Command="{Binding QueueAlbum}" Margin="8,0,0,0">
+                        <local:FadeImageButton.Content>
+                            <TextBlock Text="queue this album" Foreground="{DynamicResource ButtonNormalForeground}" />
+                        </local:FadeImageButton.Content>
+                        <local:FadeImageButton.HighlightContent>
+                            <TextBlock Text="queue this album" Foreground="{DynamicResource HighlightGradientBrush}" />
+                        </local:FadeImageButton.HighlightContent>
+                    </local:FadeImageButton>
+                </StackPanel>
             </StackPanel>
 
             <StackPanel Orientation="Vertical" Margin="8" Grid.Column="3">

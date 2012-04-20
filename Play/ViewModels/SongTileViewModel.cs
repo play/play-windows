@@ -1,6 +1,7 @@
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using Play.Models;
 using ReactiveUI;
@@ -13,6 +14,7 @@ namespace Play.ViewModels
         Song Model { get; }
         BitmapImage AlbumArt { get; }
         bool IsStarred { get; set; }
+        Visibility QueueSongVisibility { get; set; }
 
         ReactiveAsyncCommand QueueSong { get; }
         ReactiveAsyncCommand QueueAlbum { get; }
@@ -36,6 +38,12 @@ namespace Play.ViewModels
         public bool IsStarred {
             get { return _IsStarred; }
             set { this.RaiseAndSetIfChanged(x => x.IsStarred, value); }
+        }
+
+        Visibility _QueueSongVisibility;
+        public Visibility QueueSongVisibility {
+            get { return _QueueSongVisibility; }
+            set { this.RaiseAndSetIfChanged(x => x.QueueSongVisibility, value); }
         }
 
         public ReactiveAsyncCommand QueueSong { get; protected set; }
