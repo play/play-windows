@@ -92,7 +92,10 @@ namespace Play.ViewModels
 
                 playApi.ListenUrl().ToProperty(this, x => x.ListenUrl);
 
-                var pusherSubj = playApi.ConnectToSongChangeNotifications().Multicast(new Subject<Unit>());
+                var pusherSubj = playApi.ConnectToSongChangeNotifications()
+                    .Retry(25)
+                    .Multicast(new Subject<Unit>());
+
                 var shouldUpdate = Observable.Defer(() => 
                         pusherSubj.Take(1).Timeout(TimeSpan.FromMinutes(2.0), RxApp.TaskpoolScheduler)).Catch(Observable.Return(Unit.Default))
                     .Repeat()
