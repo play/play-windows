@@ -7,5 +7,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>    </Application.Resources>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>
