@@ -117,6 +117,8 @@ namespace Play.ViewModels
                     .Select(x => x.Select(y => new SongTileViewModel(y, loginMethods.CurrentAuthenticatedClient) { QueueSongVisibility = Visibility.Collapsed }))
                     .ToProperty(this, x => x.AllSongs);
 
+                MessageBus.Current.RegisterMessageSource(this.WhenAny(x => x.IsPlaying, x => x.Value), "IsPlaying");
+
                 var ret = new CompositeDisposable();
                 ret.Add(nowPlaying.Connect());
                 ret.Add(shouldUpdate.Connect());

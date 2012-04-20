@@ -15,7 +15,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Hardcodet.Wpf.TaskbarNotification;
 using Play.ViewModels;
+using ReactiveUI;
+using ReactiveUI.Xaml;
 
 namespace Play
 {
@@ -37,6 +40,8 @@ namespace Play
             { ResizeDirection.BottomRight, Cursors.SizeNWSE },
         };
 
+        TaskbarIcon taskbarIcon;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -45,6 +50,24 @@ namespace Play
             DataContext = AppBootstrapper;
 
             UpdateDwmBorder();
+
+            taskbarIcon = new TaskbarIcon();
+
+            MessageBus.Current.Listen<bool>("IsPlaying").Subscribe(x => {
+                taskbarIcon.IconSource = x ?
+                   new BitmapImage(new Uri("pack://application:,,,/Play;component/Images/status-icon-on.ico")) :
+                   new BitmapImage(new Uri("pack://application:,,,/Play;component/Images/status-icon-off.ico"));
+
+                taskbarIcon.Visibility = Visibility.Visible;
+            });
+
+            taskbarIcon.LeftClickCommand = ReactiveCommand.Create(_ => true, _ => {
+                if (WindowState == WindowState.Minimized) {
+                    WindowState = WindowState.Normal;
+                }
+
+                Show();
+            });
         }
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
