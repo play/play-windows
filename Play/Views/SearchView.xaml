@@ -63,15 +63,42 @@
             </Grid>
         </Border>
 
-        <ScrollViewer Grid.Row="1" MinHeight="120" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Background="#FFF3F3F3">
-            <ItemsControl ItemsSource="{Binding SearchResults}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Routing:ViewModelViewHost ViewModel="{Binding}" Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}" 
-                                                   HorizontalAlignment="Stretch"  HorizontalContentAlignment="Stretch"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <Grid Grid.Row="1" MinHeight="120" Background="#FFF3F3F3">
+            <ScrollViewer  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" >
+                <ItemsControl ItemsSource="{Binding SearchResults}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Routing:ViewModelViewHost ViewModel="{Binding}" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type ScrollViewer}}}" 
+                                                       HorizontalAlignment="Stretch"  HorizontalContentAlignment="Stretch"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <Border Height="18" VerticalAlignment="Top" Margin="0,-1,0,0">
+                <Border.Effect>
+                    <BlurEffect Radius="8"/>
+                </Border.Effect>
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#E0F3F3F3" Offset="0.53"/>
+                        <GradientStop Color="#00F3F3F3" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <Border Height="50" VerticalAlignment="Bottom" >
+                <Border.Effect>
+                    <BlurEffect Radius="8"/>
+                </Border.Effect>
+                <Border.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#00F3F3F3" Offset="0.53"/>
+                        <GradientStop Color="#E0F3F3F3" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+        </Grid>
+
     </Grid>
 </UserControl>
