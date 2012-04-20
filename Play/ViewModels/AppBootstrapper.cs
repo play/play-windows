@@ -118,8 +118,10 @@ namespace Play.ViewModels
             ret.Bind<ILoginMethods>().ToConstant(this);
             ret.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
             ret.Bind<IPlayViewModel>().To<PlayViewModel>();
+            ret.Bind<ISearchViewModel>().To<SearchViewModel>();
             ret.Bind<IViewForViewModel<WelcomeViewModel>>().To<WelcomeView>();
             ret.Bind<IViewForViewModel<PlayViewModel>>().To<PlayView>();
+            ret.Bind<IViewForViewModel<SearchViewModel>>().To<SearchView>();
             ret.Bind<IViewForViewModel<SongTileViewModel>>().To<SongTileView>().InTransientScope();
 
 #if DEBUG

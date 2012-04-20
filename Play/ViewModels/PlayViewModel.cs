@@ -26,6 +26,7 @@ namespace Play.ViewModels
         IEnumerable<SongTileViewModel> AllSongs { get; }
             
         ReactiveCommand TogglePlay { get; }
+        ReactiveCommand Search { get; }
         ReactiveCommand Logout { get; }
     }
 
@@ -69,6 +70,7 @@ namespace Play.ViewModels
         }
 
         public ReactiveCommand TogglePlay { get; protected set; }
+        public ReactiveCommand Search { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
 
         [Inject]
@@ -77,6 +79,7 @@ namespace Play.ViewModels
             HostScreen = screen;
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
+            Search = new ReactiveCommand();
 
             // XXX: God I hate that I have to do this
             Observable.Never<Song>().ToProperty(this, x => x.CurrentSong);
@@ -121,6 +124,7 @@ namespace Play.ViewModels
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
+            Search.Subscribe(_ => screen.Router.Navigate.Execute(RxApp.GetService<ISearchViewModel>()));
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Akavache;
 using Ninject;
 using Play.Models;
@@ -16,9 +17,11 @@ namespace Play.ViewModels
     public interface ISearchViewModel : IRoutableViewModel
     {
         string SearchQuery { get; set; }
+        Visibility SearchBusySpinner { get; }
 
         ReactiveCollection<ISongTileViewModel> SearchResults { get; }
         ReactiveAsyncCommand PerformSearch { get; }
+        ReactiveCommand GoBack { get; }
     }
 
     public class SearchViewModel : ReactiveObject, ISearchViewModel
@@ -35,17 +38,33 @@ namespace Play.ViewModels
             set { this.RaiseAndSetIfChanged(x => x.SearchQuery, value); }
         }
 
+        ObservableAsPropertyHelper<Visibility> _SearchBusySpinner;
+        public Visibility SearchBusySpinner {
+            get { return _SearchBusySpinner.Value; }
+        }
+
         public ReactiveCollection<ISongTileViewModel> SearchResults { get; protected set; }
         public ReactiveAsyncCommand PerformSearch { get; protected set; }
+        public ReactiveCommand GoBack { get; protected set; }
 
         [Inject]
-        public SearchViewModel(IScreen hostScreen, IPlayApi playApi, [Named("UserAccount")] IBlobCache userCache)
+        public SearchViewModel(IScreen hostScreen, ILoginMethods loginMethods, [Named("UserAccount")] IBlobCache userCache)
         {
             HostScreen = hostScreen;
             SearchResults = new ReactiveCollection<ISongTileViewModel>();
+            var playApi = loginMethods.CurrentAuthenticatedClient;
+
+            if (playApi == null) {
+                hostScreen.Router.Navigate.Execute(RxApp.GetService<IWelcomeViewModel>());
+                return;
+            }
 
             var canSearch = this.WhenAny(x => x.SearchQuery, x => !String.IsNullOrWhiteSpace(x.Value));
             PerformSearch = new ReactiveAsyncCommand(canSearch);
+
+            this.ObservableForProperty(x => x.SearchQuery)
+                .Throttle(TimeSpan.FromMilliseconds(700), RxApp.DeferredScheduler)
+                .InvokeCommand(PerformSearch);
 
             var searchResults = PerformSearch.RegisterAsyncObservable(_ =>
                 userCache.GetOrFetchObject(
@@ -57,6 +76,13 @@ namespace Play.ViewModels
                 .Do(_ => SearchResults.Clear())
                 .SelectMany(list => list.ToObservable())
                 .CreateCollection(x => (ISongTileViewModel) new SongTileViewModel(x, playApi));
+
+            PerformSearch.ItemsInflight.StartWith(0)
+                .Select(x => x > 0 ? Visibility.Visible : Visibility.Hidden)
+                .ToProperty(this, x => x.SearchBusySpinner);
+
+            GoBack = new ReactiveCommand();
+            GoBack.InvokeCommand(hostScreen.Router.NavigateBack);
         }
     }
 }
