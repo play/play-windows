@@ -22,8 +22,12 @@ namespace Play.ViewModels
         string BaseUrl { get; set; }
         string Token { get; set; }
         string ErrorMessage { get; }
+
         ReactiveCommand OkButton { get; }
         ReactiveCommand OpenTokenPage { get; }
+        ReactiveCommand AuthorizeWithLastFm { get; }
+
+        IObserver<Unit> RetrySessionHint { get; }
     }
 
     public class WelcomeViewModel : ReactiveObject, IWelcomeViewModel
@@ -45,8 +49,11 @@ namespace Play.ViewModels
             get { return _ErrorMessage.Value; }
         }
 
+        public IObserver<Unit> RetrySessionHint { get; protected set; }
+
         public ReactiveCommand OkButton { get; protected set; }
         public ReactiveCommand OpenTokenPage { get; protected set; }
+        public ReactiveCommand AuthorizeWithLastFm { get; protected set; }
 
         public string UrlPathSegment {
             get { return "login"; }
@@ -58,6 +65,7 @@ namespace Play.ViewModels
         public WelcomeViewModel(
             IScreen screen, 
             ILoginMethods loginMethods,
+            ILastFmApi lastFmApi,
             [Named("connectToServer")] [Optional] Func<string, string, IObservable<Unit>> connectToServerMock)
         {
             HostScreen = screen;
@@ -96,6 +104,16 @@ namespace Play.ViewModels
                 .Subscribe(_ => error.OnNext(null));
 
             error.ToProperty(this, x => x.ErrorMessage);
+
+            var focusSubj = new Subject<Unit>();
+            RetrySessionHint = focusSubj;
+
+            AuthorizeWithLastFm = new ReactiveCommand();
+            AuthorizeWithLastFm
+                .SelectMany(_ => lastFmApi.BeginAuthorize(focusSubj))
+                .Subscribe(
+                    _ => this.Log().Info("Authorized with last.fm"), 
+                    ex => this.Log().InfoException("Failed to auth with last.fm", ex));
         }
 
         bool isValidUrl(string url)

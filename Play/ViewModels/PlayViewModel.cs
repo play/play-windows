@@ -75,7 +75,7 @@ namespace Play.ViewModels
         public ReactiveCommand Logout { get; protected set; }
 
         [Inject]
-        public PlayViewModel(IScreen screen, ILoginMethods loginMethods)
+        public PlayViewModel(IScreen screen, ILoginMethods loginMethods, ILastFmApi lastFmApi)
         {
             HostScreen = screen;
             TogglePlay = new ReactiveCommand();
@@ -94,14 +94,13 @@ namespace Play.ViewModels
                     return null;
                 }
 
-                // Get the Listen URL or die trying
                 Observable.Defer(playApi.ListenUrl)
                     .Timeout(TimeSpan.FromSeconds(30), RxApp.TaskpoolScheduler)
-                    .Retry()
+                    .Retry(10)
                     .ToProperty(this, x => x.ListenUrl);
 
                 var pusherSubj = playApi.ConnectToSongChangeNotifications()
-                    .Retry(25)
+                    .Retry(10)
                     .Multicast(new Subject<Unit>());
 
                 var shouldUpdate = Observable.Defer(() => 
@@ -126,6 +125,12 @@ namespace Play.ViewModels
                     .ToProperty(this, x => x.AllSongs);
 
                 MessageBus.Current.RegisterMessageSource(this.WhenAny(x => x.IsPlaying, x => x.Value), "IsPlaying");
+
+                this.WhenAny(x => x.IsPlaying, x => x.CurrentSong, (playing, song) => new { Playing = playing.Value, Song = song.Value })
+                    .Where(x => x.Playing && lastFmApi.CanScrobble)
+                    .DistinctUntilChanged(x => x.Song.id)
+                    .SelectMany(x => lastFmApi.Scrobble(x.Song).Select(_ => x.Song))
+                    .Subscribe(x => this.Log().Info("Scrobbled {0}", x.name));
 
                 var ret = new CompositeDisposable();
                 ret.Add(nowPlaying.Connect());

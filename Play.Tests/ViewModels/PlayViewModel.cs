@@ -154,7 +154,103 @@ namespace Play.Tests.ViewModels
                 sched.AdvanceToMs(3*60*1000 + 1500);
                 nowPlayingExecuteCount.Should().Be(3);
             });
-            
+        }
+
+        public void DontScrobbleWhenWeAreNotSetup()
+        {
+            var kernel = new MoqMockingKernel();
+            var router = new RoutingState();
+            int scrobbleCount = 0;
+
+            var songs = Fakes.GetAlbum();
+            var pusher = new Subject<Unit>();
+
+            var fixture = setupStandardMock(kernel, router, () => {
+                var lastFmApi = kernel.GetMock<ILastFmApi>();
+                lastFmApi.Setup(x => x.CanScrobble).Returns(false);
+                lastFmApi.Setup(x => x.Scrobble(It.IsAny<Song>())).Callback(() => scrobbleCount++);
+
+                var playApi = kernel.GetMock<IPlayApi>();
+                playApi.Setup(x => x.NowPlaying()).Returns(Observable.Return(songs.First()));
+                playApi.Setup(x => x.Queue()).Returns(Observable.Return(songs.Skip(1).ToList()));
+                playApi.Setup(x => x.ConnectToSongChangeNotifications()).Returns(pusher);
+            });
+
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(0);
+
+            songs.RemoveAt(0);
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(0);
+        }
+
+        public void ScrobbleWhenTheSongChangesAndWeArePlaying()
+        {
+            var kernel = new MoqMockingKernel();
+            var router = new RoutingState();
+            int scrobbleCount = 0;
+
+            var songs = Fakes.GetAlbum();
+            var pusher = new Subject<Unit>();
+
+            var fixture = setupStandardMock(kernel, router, () => {
+                var lastFmApi = kernel.GetMock<ILastFmApi>();
+                lastFmApi.Setup(x => x.CanScrobble).Returns(true);
+                lastFmApi.Setup(x => x.Scrobble(It.IsAny<Song>())).Callback(() => scrobbleCount++);
+
+                var playApi = kernel.GetMock<IPlayApi>();
+                playApi.Setup(x => x.NowPlaying()).Returns(Observable.Return(songs.First()));
+                playApi.Setup(x => x.Queue()).Returns(Observable.Return(songs.Skip(1).ToList()));
+                playApi.Setup(x => x.ConnectToSongChangeNotifications()).Returns(pusher);
+            });
+
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(0);
+
+            fixture.TogglePlay.Execute(null);
+
+            songs.RemoveAt(0);
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(1);
+
+            songs.RemoveAt(0);
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(2);
+
+            fixture.TogglePlay.Execute(null);
+
+            songs.RemoveAt(0);
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(2);
+
+        }
+
+        public void DontScrobbleIfSongsArentPlaying()
+        {
+            var kernel = new MoqMockingKernel();
+            var router = new RoutingState();
+            int scrobbleCount = 0;
+
+            var songs = Fakes.GetAlbum();
+            var pusher = new Subject<Unit>();
+
+            var fixture = setupStandardMock(kernel, router, () => {
+                var lastFmApi = kernel.GetMock<ILastFmApi>();
+                lastFmApi.Setup(x => x.CanScrobble).Returns(true);
+                lastFmApi.Setup(x => x.Scrobble(It.IsAny<Song>())).Callback(() => scrobbleCount++);
+
+                var playApi = kernel.GetMock<IPlayApi>();
+                playApi.Setup(x => x.NowPlaying()).Returns(Observable.Return(songs.First()));
+                playApi.Setup(x => x.Queue()).Returns(Observable.Return(songs.Skip(1).ToList()));
+                playApi.Setup(x => x.ConnectToSongChangeNotifications()).Returns(pusher);
+            });
+
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(0);
+
+            songs.RemoveAt(0);
+            pusher.OnNext(Unit.Default);
+            scrobbleCount.Should().Be(0);
         }
 
         IPlayViewModel setupStandardMock(MoqMockingKernel kernel, IRoutingState router, Action extraSetup = null)
@@ -167,6 +263,10 @@ namespace Play.Tests.ViewModels
             playApi.Setup(x => x.NowPlaying()).Returns(Observable.Return(Fakes.GetSong()));
             playApi.Setup(x => x.Queue()).Returns(Observable.Return(Fakes.GetAlbum()));
             playApi.Setup(x => x.FetchImageForAlbum(It.IsAny<Song>())).Returns(Observable.Return<BitmapImage>(null));
+
+            var lastFmApi = kernel.GetMock<ILastFmApi>();
+            lastFmApi.Setup(x => x.CanScrobble).Returns(false);
+            lastFmApi.Setup(x => x.Scrobble(It.IsAny<Song>())).Returns(Observable.Return(Unit.Default));
 
             kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
 
