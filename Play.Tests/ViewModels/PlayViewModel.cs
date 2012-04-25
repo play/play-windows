@@ -72,33 +72,6 @@ namespace Play.Tests.ViewModels
         }
 
         [Fact]
-        public void ListenUrlShouldCorrespondToActualUrl()
-        {
-            var kernel = new MoqMockingKernel();
-            kernel.Bind<IPlayViewModel>().To<PlayViewModel>();
-            kernel.Bind<IPlayApi>().To<PlayApi>();
-            kernel.Bind<IBlobCache>().To<TestBlobCache>().Named("LocalMachine");
-
-            var client = new RestClient("https://example.com");
-            kernel.Bind<IRestClient>().ToConstant(client);
-
-            var router = new RoutingState();
-            kernel.GetMock<IScreen>().Setup(x => x.Router).Returns(router);
-
-            kernel.GetMock<ILoginMethods>()
-                .Setup(x => x.CurrentAuthenticatedClient).Returns(kernel.Get<IPlayApi>());
-
-            var fixture = kernel.Get<IPlayViewModel>();
-            router.Navigate.Execute(fixture);
-
-            var result = fixture.WhenAny(x => x.ListenUrl, x => x.Value)
-                .Where(x => x != null)
-                .First();
-
-            result.Should().Be("http://example.com:8000/listen");
-        }
-
-        [Fact]
         public void WhenPusherFiresWeShouldUpdateTheAlbum()
         {
             var kernel = new MoqMockingKernel();
@@ -179,6 +152,8 @@ namespace Play.Tests.ViewModels
                 .Returns(kernel.Get<IPlayApi>());
 
             if (extraSetup != null) extraSetup();
+
+            RxApp.ConfigureServiceLocator((t,s) => kernel.Get(t,s), (t,s) => kernel.GetAll(t,s));
             return kernel.Get<IPlayViewModel>();
         }
 
