@@ -79,6 +79,9 @@
     <Reference Include="Hardcodet.Wpf.TaskbarNotification">
       <HintPath>..\packages\Hardcodet.Wpf.TaskbarNotification.1.0.4.0\lib\net40\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
+    <Reference Include="Lpfm.LastFmScrobbler">
+      <HintPath>..\packages\Lpfm.LastFmScrobbler.dll.1.2\lib\NET40\Lpfm.LastFmScrobbler.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.ServiceModel.Tcp">
       <HintPath>..\ext\Microsoft.ServiceModel.Tcp.dll</HintPath>
     </Reference>
