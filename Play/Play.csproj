@@ -176,6 +176,7 @@
     <Compile Include="BorderlessWindowBehavior.cs" />
     <Compile Include="FadeImageButton.cs" />
     <Compile Include="HardwareRenderingHelper.cs" />
+    <Compile Include="Models\LastFmApi.cs" />
     <Compile Include="Models\PlayApi.cs" />
     <Compile Include="Models\PusherHelper.cs" />
     <Compile Include="Models\Song.cs" />
