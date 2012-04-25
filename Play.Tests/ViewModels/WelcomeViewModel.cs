@@ -199,7 +199,7 @@ namespace Play.Tests.ViewModels
             fixture.OkButton.Execute(null);
 
             kernel.Get<IScreen>().Router.ViewModelObservable().Skip(1)
-                .Timeout(TimeSpan.FromSeconds(6.0), RxApp.TaskpoolScheduler)
+                .Timeout(TimeSpan.FromSeconds(10.0), RxApp.TaskpoolScheduler)
                 .First();
 
             fixture.ErrorMessage.Should().BeNull();
