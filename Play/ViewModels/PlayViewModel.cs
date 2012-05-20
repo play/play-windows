@@ -18,7 +18,12 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public interface IPlayViewModel : IRoutableViewModel
+    public interface IBackgroundTaskHostViewModel : IReactiveNotifyPropertyChanged
+    {
+        ReactiveCollection<IBackgroundTaskTileViewModel> BackgroundTasks { get; }
+    }
+
+    public interface IPlayViewModel : IRoutableViewModel, IBackgroundTaskHostViewModel
     {
         IPlayApi AuthenticatedClient { get; }
         string ListenUrl { get; }
@@ -70,6 +75,8 @@ namespace Play.ViewModels
             set { this.RaiseAndSetIfChanged(x => x.IsPlaying, value); }
         }
 
+        public ReactiveCollection<IBackgroundTaskTileViewModel> BackgroundTasks { get; protected set; }
+
         public ReactiveCommand TogglePlay { get; protected set; }
         public ReactiveCommand Search { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
@@ -78,6 +85,7 @@ namespace Play.ViewModels
         public PlayViewModel(IScreen screen, ILoginMethods loginMethods)
         {
             HostScreen = screen;
+            BackgroundTasks = new ReactiveCollection<IBackgroundTaskTileViewModel>();
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
             Search = new ReactiveCommand();
