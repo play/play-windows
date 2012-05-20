@@ -1,8 +1,11 @@
 using System;
+using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ICSharpCode.SharpZipLib.Zip;
 using Play.Models;
 using ReactiveUI;
 using ReactiveUI.Xaml;
@@ -18,6 +21,9 @@ namespace Play.ViewModels
 
         ReactiveAsyncCommand QueueSong { get; }
         ReactiveAsyncCommand QueueAlbum { get; }
+
+        ReactiveCommand DownloadSong { get; }
+        ReactiveCommand DownloadAlbum { get; }
 
         ReactiveAsyncCommand ShowSongsFromArtist { get; }
         ReactiveAsyncCommand ShowSongsFromAlbum { get; }
@@ -49,6 +55,9 @@ namespace Play.ViewModels
         public ReactiveAsyncCommand QueueSong { get; protected set; }
         public ReactiveAsyncCommand QueueAlbum { get; protected set; }
 
+        public ReactiveCommand DownloadSong { get; protected set; }
+        public ReactiveCommand DownloadAlbum { get; protected set; }
+
         public ReactiveAsyncCommand ShowSongsFromArtist { get; protected set; }
         public ReactiveAsyncCommand ShowSongsFromAlbum { get; protected set; }
 
@@ -79,6 +88,10 @@ namespace Play.ViewModels
 
             QueueAlbum.ThrownExceptions.Subscribe(x => { });
 
+            DownloadAlbum = new ReactiveCommand();
+
+            DownloadSong = new ReactiveCommand();
+
             IsStarred = model.starred;
             ToggleStarred = new ReactiveAsyncCommand();
 
@@ -96,6 +109,45 @@ namespace Play.ViewModels
             return Observable.Defer(() => playApi.QueueSong(song))
                 .Timeout(TimeSpan.FromSeconds(20), RxApp.TaskpoolScheduler)
                 .Retry(3);
+        }
+
+        IObservable<Unit> postProcessSong(Tuple<string, byte[]> fileAndData, string rootPath = null)
+        {
+            rootPath = rootPath ?? Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+            var paths = new[] {
+                Model.artist, Model.album
+            };
+
+            return Observable.Start(() => {
+                var targetDir = paths.Aggregate(new DirectoryInfo(rootPath), (acc, x) => {
+                    if (!acc.Exists) {
+                        acc.Create();
+                    }
+                    return new DirectoryInfo(Path.Combine(acc.FullName, x));
+                });
+
+                File.WriteAllBytes(Path.Combine(targetDir.FullName, fileAndData.Item1), fileAndData.Item2);
+            }, RxApp.TaskpoolScheduler);
+        }
+
+        IObservable<Unit> postProcessAlbum(Tuple<string, byte[]> fileAndData, string rootPath = null)
+        {
+            rootPath = rootPath ?? Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+            var paths = new[] {
+                Model.artist, Model.album
+            };
+
+            return Observable.Start(() => {
+                var targetDir = paths.Aggregate(new DirectoryInfo(rootPath), (acc, x) => {
+                    if (!acc.Exists) {
+                        acc.Create();
+                    }
+                    return new DirectoryInfo(Path.Combine(acc.FullName, x));
+                });
+
+                var zip = new FastZip();
+                zip.ExtractZip(new MemoryStream(fileAndData.Item2), targetDir.FullName, FastZip.Overwrite.Never, null, null, null, true, true);
+            }, RxApp.TaskpoolScheduler);
         }
     }
 }

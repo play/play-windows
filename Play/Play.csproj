@@ -174,6 +174,7 @@
     <Compile Include="Models\Song.cs" />
     <Compile Include="RestSharpRxHelper.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
+    <Compile Include="ViewModels\BackgroundTaskTileViewModel.cs" />
     <Compile Include="ViewModels\PlayViewModel.cs" />
     <Compile Include="ViewModels\SearchViewModel.cs" />
     <Compile Include="ViewModels\SongTileViewModel.cs" />
