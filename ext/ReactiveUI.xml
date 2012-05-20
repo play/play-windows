@@ -168,6 +168,11 @@
             Count.
             </summary>
         </member>
+        <member name="P:ReactiveUI.IReactiveCollection.IsEmpty">
+            <summary>
+            Fires when a collection becomes or stops being empty.
+            </summary>
+        </member>
         <member name="P:ReactiveUI.IReactiveCollection.ItemChanging">
             <summary>
             Provides Item Changed notifications for any item in collection that
@@ -410,42 +415,6 @@
             <summary>
             Returns the Current MessageBus from the RxApp global object.
             </summary>
-        </member>
-        <member name="M:ReactiveUI.MessageBusMixins.RegisterViewModel``1(ReactiveUI.IMessageBus,``0,System.String)">
-            <summary>
-            Registers a ViewModel object to send property change
-            messages; this allows a ViewModel to listen to another ViewModel's
-            changes in a loosely-typed manner.
-            </summary>
-            <param name="This">The message bus this extends.</param>
-            <param name="source">The ViewModel to register</param>
-            <param name="contract">A unique string to distinguish messages with
-            identical types (i.e. "MyCoolViewModel") - if the message type is
-            only used for one purpose, leave this as null.</param>
-            <exception cref="T:System.Exception"><c>Exception</c>The registered ViewModel
-            must be the only instance (i.e. not in an ItemsControl)</exception>
-        </member>
-        <member name="M:ReactiveUI.MessageBusMixins.ListenToViewModel``1(ReactiveUI.IMessageBus,System.String)">
-            <summary>
-            Listens to a registered ViewModel's property change notifications.
-            </summary>
-            <param name="This">The message bus this extends</param>
-            <param name="contract">A unique string to distinguish messages with
-            identical types (i.e. "MyCoolViewModel") - if the message type is
-            only used for one purpose, leave this as null.</param>
-            <returns>An Observable that fires when an object changes and
-            provides the property name that has changed.</returns>
-        </member>
-        <member name="M:ReactiveUI.MessageBusMixins.ViewModelForType``1(ReactiveUI.IMessageBus,System.String)">
-            <summary>
-            Return the current instance of the ViewModel with the specified
-            type.
-            </summary>
-            <param name="This">The message bus this extends</param>
-            <param name="contract">A unique string to distinguish messages with
-            identical types (i.e. "MyCoolViewModel") - if the message type is
-            only used for one purpose, leave this as null.</param>
-            <returns>The ViewModel object registered for this type.</returns>
         </member>
         <member name="T:ReactiveUI.ObservableAsPropertyHelper`1">
              <summary>
