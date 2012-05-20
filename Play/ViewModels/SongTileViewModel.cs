@@ -3,9 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using ICSharpCode.SharpZipLib.Zip;
+using Ninject;
 using Play.Models;
 using ReactiveUI;
 using ReactiveUI.Xaml;
@@ -63,7 +65,7 @@ namespace Play.ViewModels
 
         public ReactiveAsyncCommand ToggleStarred { get; protected set; }
 
-        public SongTileViewModel(Song model, IPlayApi playApi)
+        public SongTileViewModel(Song model, IPlayApi playApi, [Optional][Named("MusicDir")] string musicDir)
         {
             Model = model;
 
@@ -89,8 +91,31 @@ namespace Play.ViewModels
             QueueAlbum.ThrownExceptions.Subscribe(x => { });
 
             DownloadAlbum = new ReactiveCommand();
-
             DownloadSong = new ReactiveCommand();
+
+            DownloadAlbum.Subscribe(_ => {
+                var dl = playApi.DownloadAlbum(Model.artist, model.album)
+                    .SelectMany(x => postProcessAlbum(x, musicDir))
+                    .Multicast(new Subject<Unit>());
+
+                var timer = Observable.Timer(DateTimeOffset.MinValue, TimeSpan.FromSeconds(3.0))
+                    .Select(x => (int)x * 5)
+                    .Where(x => x < 100).TakeUntil(dl);
+
+                BackgroundTaskTileViewModel.Create(timer, "Downloading " + Model.album, dl.Connect());
+            });
+
+            DownloadSong.Subscribe(_ => {
+                var dl = playApi.DownloadSong(Model)
+                    .SelectMany(x => postProcessSong(x, musicDir))
+                    .Multicast(new Subject<Unit>());
+
+                var timer = Observable.Timer(DateTimeOffset.MinValue, TimeSpan.FromSeconds(3.0))
+                    .Select(x => (int)x * 5)
+                    .Where(x => x < 100).TakeUntil(dl);
+
+                BackgroundTaskTileViewModel.Create(timer, "Downloading " + Model.name, dl.Connect());
+            });
 
             IsStarred = model.starred;
             ToggleStarred = new ReactiveAsyncCommand();
