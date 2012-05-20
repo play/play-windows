@@ -89,15 +89,15 @@ namespace Play.ViewModels
         }
 
         public IObservable<IPlayApi> LoadCredentials() { return apiFactory != null ? apiFactory() : loadCredentials().ToObservable(); }
-        async Task<IPlayApi> loadCredentials()
+        Task<IPlayApi> loadCredentials()
         {
             var blobCache = Kernel.Get<ISecureBlobCache>();
-            var baseUrl = await blobCache.GetObjectAsync<string>("BaseUrl");
-            var token = await blobCache.GetObjectAsync<string>("Token");
 
-            var ret = createPlayApiFromCreds(baseUrl, token);
-            CurrentAuthenticatedClient = ret;
-            return ret;
+            return Observable.Zip(
+                    blobCache.GetObjectAsync<string>("BaseUrl"), blobCache.GetObjectAsync<string>("Token"),
+                    (BaseUrl, Token) => new { BaseUrl, Token })
+                .Select(x => (IPlayApi)createPlayApiFromCreds(x.BaseUrl, x.Token))
+                .ToTask();
         }
 
         PlayApi createPlayApiFromCreds(string baseUrl, string token)

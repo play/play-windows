@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Ninject;
+using Ninject.MockingKernel.Moq;
 using Play.Models;
 using PusherClientDotNet;
 using ReactiveUI;
@@ -19,6 +21,7 @@ namespace Play.Tests.Models
         [Fact(Skip = "This test is super slow and is for debug purposes")]
         public void PusherIntegrationSmokeTest()
         {
+#if FALSE
             Func<Pusher> factory = () => new Pusher(IntegrationTestUrl.PusherApiKey);
 
             var result = PusherHelper.Connect<Dictionary<string, object>>(factory, "now_playing_updates", "update_now_playing")
@@ -33,6 +36,7 @@ namespace Play.Tests.Models
                 .First();
 
             result.Should().NotBeNull();
+#endif
         }
     }
 }

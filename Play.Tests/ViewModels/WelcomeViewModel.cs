@@ -173,8 +173,6 @@ namespace Play.Tests.ViewModels
 
     public class WelcomeViewModelIntegrationTests
     {
-        const string dummyUser = "xpaulbettsx";
-
         [Fact]
         public void SuccessfulLoginIntegrationTest()
         {
@@ -195,7 +193,7 @@ namespace Play.Tests.ViewModels
             kernel.Get<IScreen>().Router.Navigate.Execute(fixture);
 
             fixture.BaseUrl = IntegrationTestUrl.Current;
-            fixture.Token = dummyUser;
+            fixture.Token = IntegrationTestUrl.Token;
             fixture.OkButton.Execute(null);
 
             kernel.Get<IScreen>().Router.ViewModelObservable().Skip(1)
