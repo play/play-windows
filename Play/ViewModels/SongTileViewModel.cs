@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ICSharpCode.SharpZipLib.Tar;
 using ICSharpCode.SharpZipLib.Zip;
 using Ninject;
 using Play.Models;
@@ -65,7 +66,7 @@ namespace Play.ViewModels
 
         public ReactiveAsyncCommand ToggleStarred { get; protected set; }
 
-        public SongTileViewModel(Song model, IPlayApi playApi, [Optional][Named("MusicDir")] string musicDir)
+        public SongTileViewModel(Song model, IPlayApi playApi, [Optional][Named("MusicDir")] string musicDir = null)
         {
             Model = model;
 
@@ -151,6 +152,8 @@ namespace Play.ViewModels
                     return new DirectoryInfo(Path.Combine(acc.FullName, x));
                 });
 
+                if (!targetDir.Exists)  targetDir.Create();
+
                 File.WriteAllBytes(Path.Combine(targetDir.FullName, fileAndData.Item1), fileAndData.Item2);
             }, RxApp.TaskpoolScheduler);
         }
@@ -159,7 +162,7 @@ namespace Play.ViewModels
         {
             rootPath = rootPath ?? Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
             var paths = new[] {
-                Model.artist, Model.album
+                Model.artist, // NB: Zip folder itself has Album name
             };
 
             return Observable.Start(() => {
@@ -167,11 +170,21 @@ namespace Play.ViewModels
                     if (!acc.Exists) {
                         acc.Create();
                     }
+
                     return new DirectoryInfo(Path.Combine(acc.FullName, x));
                 });
+                    
+                if (!targetDir.Exists)  targetDir.Create();
 
+                // NB: https://github.com/play/play/issues/169
+                using (var archive = TarArchive.CreateInputTarArchive(new MemoryStream(fileAndData.Item2))) {
+                    archive.ExtractContents(targetDir.FullName);
+                }
+
+                /*
                 var zip = new FastZip();
-                zip.ExtractZip(new MemoryStream(fileAndData.Item2), targetDir.FullName, FastZip.Overwrite.Never, null, null, null, true, true);
+                zip.ExtractZip(new MemoryStream(fileAndData.Item2), targetDir.FullName, FastZip.Overwrite.Always, null, null, null, true, true);
+                */
             }, RxApp.TaskpoolScheduler);
         }
     }
