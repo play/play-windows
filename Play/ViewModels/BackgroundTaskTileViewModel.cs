@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Threading;
 using ReactiveUI;
 using ReactiveUI.Xaml;
 
@@ -14,6 +16,8 @@ namespace Play.ViewModels
         int CurrentProgress { get; }
         string CurrentText { get; set; }
         object Tag { get; set; }
+
+        ReactiveCommand Cancel { get; }
     }
 
     public class BackgroundTaskUserError : UserError
@@ -44,12 +48,15 @@ namespace Play.ViewModels
             set { this.RaiseAndSetIfChanged(x => x.Tag, value); }
         }
 
+        public ReactiveCommand Cancel { get; protected set; }
+
         public BackgroundTaskTileViewModel(IObservable<int> progress)
         {
             progress.ToProperty(this, x => x.CurrentProgress);
+            Cancel = new ReactiveCommand();
         }
 
-        public static IBackgroundTaskTileViewModel Create(ReactiveCollection<IBackgroundTaskTileViewModel> collection, IObservable<int> progress, string captionText)
+        public static DisposableContainer<IBackgroundTaskTileViewModel> Create(ReactiveCollection<IBackgroundTaskTileViewModel> collection, IObservable<int> progress, string captionText, IDisposable workSubscription)
         {
             var prg = progress.Multicast(new Subject<int>());
 
@@ -59,10 +66,46 @@ namespace Play.ViewModels
                 x => { },
                 ex => { collection.Remove(ret); UserError.Throw(new BackgroundTaskUserError("Transfer Failed", ex)); },
                 () => collection.Remove(ret));
-            prg.Connect();
+
+            var disp = prg.Connect();
 
             collection.Add(ret);
-            return ret;
+
+            var container = DisposableContainer.Create((IBackgroundTaskTileViewModel)ret, 
+                new CompositeDisposable(disp, workSubscription ?? Disposable.Empty));
+
+            ret.Cancel.Subscribe(_ => container.Dispose());
+
+            return container;
+        }
+    }
+
+    public static class DisposableContainer
+    {
+        public static DisposableContainer<T1> Create<T1>(T1 value, IDisposable disposable)
+        {
+            return new DisposableContainer<T1>(value, disposable);
+        }
+    }
+
+    public sealed class DisposableContainer<T> : IDisposable
+    {
+        IDisposable _inner;
+
+        public T Value { get; private set; }
+
+        public DisposableContainer(T value, IDisposable disposable)
+        {
+            Value = value;
+            _inner = disposable;
+        }
+
+        public void Dispose()
+        {
+            var disp = Interlocked.Exchange(ref _inner, null);
+            if (disp != null) {
+                disp.Dispose();
+            }
         }
     }
 }
