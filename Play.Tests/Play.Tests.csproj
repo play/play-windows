@@ -55,14 +55,14 @@
       <HintPath>..\packages\Newtonsoft.Json.4.5.1\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject.3.0.0.15\lib\net45-full\Ninject.dll</HintPath>
+      <HintPath>..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
     </Reference>
     <Reference Include="Ninject.MockingKernel">
-      <HintPath>..\packages\Ninject.MockingKernel.3.0.0.5\lib\net45-full\Ninject.MockingKernel.dll</HintPath>
+      <HintPath>..\packages\Ninject.MockingKernel.3.0.0.5\lib\net40-full\Ninject.MockingKernel.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Ninject.MockingKernel.Moq">
-      <HintPath>..\packages\Ninject.MockingKernel.Moq.3.0.0.5\lib\net45-full\Ninject.MockingKernel.Moq.dll</HintPath>
+      <HintPath>..\packages\Ninject.MockingKernel.Moq.3.0.0.5\lib\net40-full\Ninject.MockingKernel.Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
