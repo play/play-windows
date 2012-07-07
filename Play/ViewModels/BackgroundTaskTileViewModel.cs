@@ -59,7 +59,6 @@ namespace Play.ViewModels
         public static DisposableContainer<IBackgroundTaskTileViewModel> Create(IObservable<int> progress, string captionText, IDisposable workSubscription)
         {
             var prg = progress.Multicast(new Subject<int>());
-
             var ret = new BackgroundTaskTileViewModel(prg) {CurrentText = captionText};
 
             var collection = RxApp.GetService<IBackgroundTaskHostViewModel>().BackgroundTasks;
