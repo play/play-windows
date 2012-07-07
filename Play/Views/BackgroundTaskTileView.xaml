@@ -5,10 +5,10 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
 	x:Class="Play.BackgroundTaskTileView"
-	x:Name="UserControl"
-	d:DesignWidth="480" d:DesignHeight="128">
+	x:Name="UserControl" Height="64"
+	d:DesignWidth="480" d:DesignHeight="64">
 
-	<Grid x:Name="LayoutRoot">
+	<Grid x:Name="LayoutRoot" DataContext="{Binding ViewModel, ElementName=UserControl}">
 		<StackPanel Margin="32,0" VerticalAlignment="Center">
 			<TextBlock TextWrapping="NoWrap" Text="{Binding CurrentText}" HorizontalAlignment="Center" FontWeight="Bold" Foreground="#D8FFFFFF"/>
 			<ProgressBar Style="{DynamicResource PlayProgressBarStyle}" Height="16" Maximum="100" Minimum="0" Value="{Binding CurrentProgress}" Margin="0,4,0,0"/>

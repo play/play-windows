@@ -177,14 +177,14 @@ namespace Play.ViewModels
                 if (!targetDir.Exists)  targetDir.Create();
 
                 // NB: https://github.com/play/play/issues/169
+                /*
                 using (var archive = TarArchive.CreateInputTarArchive(new MemoryStream(fileAndData.Item2))) {
                     archive.ExtractContents(targetDir.FullName);
                 }
+                */
 
-                /*
                 var zip = new FastZip();
                 zip.ExtractZip(new MemoryStream(fileAndData.Item2), targetDir.FullName, FastZip.Overwrite.Always, null, null, null, true, true);
-                */
             }, RxApp.TaskpoolScheduler);
         }
     }

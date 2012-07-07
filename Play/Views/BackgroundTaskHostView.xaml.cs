@@ -18,20 +18,20 @@ namespace Play
 	/// <summary>
 	/// Interaction logic for BackgroundTaskView.xaml
 	/// </summary>
-	public partial class BackgroundTaskHostView : UserControl, IViewForViewModel<IBackgroundTaskHostViewModel>
+	public partial class BackgroundTaskHostView : UserControl, IViewForViewModel<BackgroundTaskHostViewModel>
 	{
 		public BackgroundTaskHostView()
 		{
 			this.InitializeComponent();
 		}
 
-        public IBackgroundTaskHostViewModel ViewModel {
-            get { return (IBackgroundTaskHostViewModel)GetValue(ViewModelProperty); }
+        public BackgroundTaskHostViewModel ViewModel {
+            get { return (BackgroundTaskHostViewModel)GetValue(ViewModelProperty); }
             set { SetValue(ViewModelProperty, value); }
         }
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(IBackgroundTaskHostViewModel), typeof(BackgroundTaskHostView), new UIPropertyMetadata(null));
 
-	    object IViewForViewModel.ViewModel { get { return ViewModel; } set { ViewModel = (IBackgroundTaskHostViewModel)value; } }
+	    object IViewForViewModel.ViewModel { get { return ViewModel; } set { ViewModel = (BackgroundTaskHostViewModel)value; } }
 	}
 }

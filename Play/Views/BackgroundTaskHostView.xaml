@@ -5,10 +5,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:Routing="clr-namespace:ReactiveUI.Routing;assembly=ReactiveUI.Routing" mc:Ignorable="d"
     x:Class="Play.BackgroundTaskHostView"
-    x:Name="UserControl"
+    x:Name="theHostView"
     d:DesignWidth="640" d:DesignHeight="480">
 
-    <Grid x:Name="LayoutRoot">
+    <Grid x:Name="LayoutRoot" DataContext="{Binding Path=ViewModel, ElementName=theHostView}" Visibility="{Binding ShouldShowBackgroundTaskPane}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="32"/>
@@ -17,12 +17,14 @@
             <ImageBrush ImageSource="/Play;component/Images/carbon_fibre_big.png" Stretch="None" TileMode="Tile" Viewport="0,0,20,22" ViewportUnits="Absolute" />
         </Grid.Background>
 
-        <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding BackgroundTasks}">
-                <Routing:ViewModelViewHost ViewModel="{Binding}" />
-            </ItemsControl>
-        </ScrollViewer>        
-        
+        <ItemsControl ItemsSource="{Binding BackgroundTasks}" Grid.RowSpan="2">  
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Routing:ViewModelViewHost ViewModel="{Binding}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    
         <Rectangle Grid.Row="1" Stroke="Black">
             <Rectangle.Fill>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
