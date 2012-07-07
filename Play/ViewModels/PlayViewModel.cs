@@ -18,12 +18,7 @@ using RestSharp;
 
 namespace Play.ViewModels
 {
-    public interface IBackgroundTaskHostViewModel : IReactiveNotifyPropertyChanged
-    {
-        ReactiveCollection<IBackgroundTaskTileViewModel> BackgroundTasks { get; }
-    }
-
-    public interface IPlayViewModel : IRoutableViewModel, IBackgroundTaskHostViewModel
+    public interface IPlayViewModel : IRoutableViewModel
     {
         IPlayApi AuthenticatedClient { get; }
         string ListenUrl { get; }
@@ -34,6 +29,7 @@ namespace Play.ViewModels
         ReactiveCommand TogglePlay { get; }
         ReactiveCommand Search { get; }
         ReactiveCommand Logout { get; }
+        IBackgroundTaskHostViewModel BackgroundTaskHost { get; }
     }
 
     public class PlayViewModel : ReactiveObject, IPlayViewModel
@@ -75,17 +71,17 @@ namespace Play.ViewModels
             set { this.RaiseAndSetIfChanged(x => x.IsPlaying, value); }
         }
 
-        public ReactiveCollection<IBackgroundTaskTileViewModel> BackgroundTasks { get; protected set; }
-
         public ReactiveCommand TogglePlay { get; protected set; }
         public ReactiveCommand Search { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
+
+        public IBackgroundTaskHostViewModel BackgroundTaskHost { get; protected set; }
 
         [Inject]
         public PlayViewModel(IScreen screen, ILoginMethods loginMethods)
         {
             HostScreen = screen;
-            BackgroundTasks = new ReactiveCollection<IBackgroundTaskTileViewModel>();
+            BackgroundTaskHost = RxApp.GetService<IBackgroundTaskHostViewModel>();
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
             Search = new ReactiveCommand();

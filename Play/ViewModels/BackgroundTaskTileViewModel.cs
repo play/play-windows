@@ -6,11 +6,18 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
+using System.Windows;
 using ReactiveUI;
 using ReactiveUI.Xaml;
 
 namespace Play.ViewModels
 {
+    public interface IBackgroundTaskHostViewModel : IReactiveNotifyPropertyChanged
+    {
+        ReactiveCollection<IBackgroundTaskTileViewModel> BackgroundTasks { get; }
+        Visibility ShouldShowBackgroundTaskPane { get; }
+    }
+
     public interface IBackgroundTaskTileViewModel : IReactiveNotifyPropertyChanged
     {
         int CurrentProgress { get; }
@@ -18,6 +25,25 @@ namespace Play.ViewModels
         object Tag { get; set; }
 
         ReactiveCommand Cancel { get; }
+    }
+
+    public class BackgroundTaskHostViewModel : ReactiveObject, IBackgroundTaskHostViewModel
+    {
+        public ReactiveCollection<IBackgroundTaskTileViewModel> BackgroundTasks { get; protected set; }
+
+        ObservableAsPropertyHelper<Visibility> _ShouldShowBackgroundTaskPane;
+        public Visibility ShouldShowBackgroundTaskPane {
+            get { return _ShouldShowBackgroundTaskPane.Value; }
+        }
+
+        public BackgroundTaskHostViewModel()
+        {
+            BackgroundTasks = new ReactiveCollection<IBackgroundTaskTileViewModel>();
+
+            BackgroundTasks.CollectionCountChanged
+                .Select(x => x == 0 ? Visibility.Visible : Visibility.Hidden)
+                .ToProperty(this, x => x.ShouldShowBackgroundTaskPane);
+        }
     }
 
     public class BackgroundTaskUserError : UserError
