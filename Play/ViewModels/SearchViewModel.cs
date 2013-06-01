@@ -41,7 +41,11 @@ namespace Play.ViewModels
             get { return _SearchBusySpinner.Value; }
         }
 
-        public ReactiveList<ISongTileViewModel> SearchResults { get; protected set; }
+        ObservableAsPropertyHelper<ReactiveList<ISongTileViewModel>> _SearchResults;
+        public ReactiveList<ISongTileViewModel> SearchResults {
+            get { return _SearchResults.Value; }
+        }
+
         public ReactiveCommand PerformSearch { get; protected set; }
         public ReactiveCommand GoBack { get; protected set; }
 
@@ -51,7 +55,6 @@ namespace Play.ViewModels
             loginMethods = loginMethods ?? RxApp.DependencyResolver.GetService<ILoginMethods>();
             userCache = userCache ?? BlobCache.UserAccount;
 
-            SearchResults = new ReactiveList<ISongTileViewModel>();
             var playApi = loginMethods.CurrentAuthenticatedClient;
 
             if (playApi == null) {
@@ -72,11 +75,10 @@ namespace Play.ViewModels
                     () => playApi.Search(SearchQuery), 
                     RxApp.TaskpoolScheduler.Now + TimeSpan.FromMinutes(1.0)));
 
-            SearchResults = searchResults
-                .Do(_ => SearchResults.Clear())
-                .SelectMany(list => list.ToObservable())
-                .LoggedCatch(this, Observable.Empty<Song>())
-                .CreateCollection(x => (ISongTileViewModel) new SongTileViewModel(x, playApi));
+            searchResults
+                .LoggedCatch(this, Observable.Return(new List<Song>()))
+                .Select(x => new ReactiveList<ISongTileViewModel>(x.Select(y => new SongTileViewModel(y, playApi))))
+                .ToProperty(this, x => x.SearchResults, out _SearchResults);
 
             PerformSearch.IsExecuting
                 .Select(x => x ? Visibility.Visible : Visibility.Hidden)
