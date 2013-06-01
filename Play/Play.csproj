@@ -76,6 +76,15 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Akavache">
+      <HintPath>..\packages\akavache.3.0.0.20130531-alpha\lib\net45\Akavache.dll</HintPath>
+    </Reference>
+    <Reference Include="Akavache.Portable">
+      <HintPath>..\packages\akavache.portable.3.0.0.20130531-alpha\lib\net45\Akavache.Portable.dll</HintPath>
+    </Reference>
+    <Reference Include="Akavache.Sqlite3">
+      <HintPath>..\packages\akavache.sqlite3.3.0.0.20130531-alpha\lib\net45\Akavache.Sqlite3.dll</HintPath>
+    </Reference>
     <Reference Include="Hardcodet.Wpf.TaskbarNotification">
       <HintPath>..\packages\Hardcodet.Wpf.TaskbarNotification.1.0.4.0\lib\net40\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
@@ -92,11 +101,20 @@
       <HintPath>..\ext\Microsoft.ServiceModel.WebSockets.DesktopClient.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.4.5.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="PusherClientDotNet">
       <HintPath>..\ext\PusherClientDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI">
+      <HintPath>..\packages\reactiveui-core.5.0.0.20130531-alpha\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Blend">
+      <HintPath>..\packages\reactiveui-platforms.5.0.0.20130531-alpha\lib\net45\ReactiveUI.Blend.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.Xaml">
+      <HintPath>..\packages\reactiveui-platforms.5.0.0.20130531-alpha\lib\net45\ReactiveUI.Xaml.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.103.0.0-nojsondotnet\lib\net35\RestSharp.dll</HintPath>
@@ -111,6 +129,21 @@
       <HintPath>..\packages\Ix_Experimental-Main.1.1.10823\lib\Net4\System.Interactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Management" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.1.30214.0\lib\Net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\Net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\Net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Windows.Threading">
+      <HintPath>..\packages\Rx-XAML.2.1.30214.0\lib\Net45\System.Reactive.Windows.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
