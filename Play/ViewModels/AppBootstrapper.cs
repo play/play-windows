@@ -30,7 +30,7 @@ namespace Play.ViewModels
         public IRoutingState Router { get; protected set; }
 
         readonly Func<IObservable<IPlayApi>> apiFactory;
-        public AppBootstrapper(IDependencyResolver dependencyResolver = null, IRoutingState router = null)
+        public AppBootstrapper(IMutableDependencyResolver dependencyResolver = null, IRoutingState router = null)
         {
             BlobCache.ApplicationName = "PlayForWindows";
 
@@ -53,7 +53,7 @@ namespace Play.ViewModels
         IPlayApi _CurrentAuthenticatedClient;
         public IPlayApi CurrentAuthenticatedClient {
             get { return _CurrentAuthenticatedClient; }
-            set { this.RaiseAndSetIfChanged(x => x.CurrentAuthenticatedClient, value); }
+            set { this.RaiseAndSetIfChanged(ref _CurrentAuthenticatedClient, value); }
         }
         
         /*

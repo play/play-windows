@@ -33,7 +33,7 @@ namespace Play.ViewModels
         string _SearchQuery;
         public string SearchQuery {
             get { return _SearchQuery; }
-            set { this.RaiseAndSetIfChanged(x => x.SearchQuery, value); }
+            set { this.RaiseAndSetIfChanged(ref _SearchQuery, value); }
         }
 
         ObservableAsPropertyHelper<Visibility> _SearchBusySpinner;
@@ -80,7 +80,7 @@ namespace Play.ViewModels
 
             PerformSearch.ItemsInflight.StartWith(0)
                 .Select(x => x > 0 ? Visibility.Visible : Visibility.Hidden)
-                .ToProperty(this, x => x.SearchBusySpinner);
+                .ToProperty(this, ref _SearchBusySpinner);
 
             PerformSearch.ThrownExceptions.Subscribe(_ => { });
 

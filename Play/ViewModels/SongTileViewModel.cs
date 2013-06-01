@@ -37,13 +37,13 @@ namespace Play.ViewModels
         bool _IsStarred;
         public bool IsStarred {
             get { return _IsStarred; }
-            set { this.RaiseAndSetIfChanged(x => x.IsStarred, value); }
+            set { this.RaiseAndSetIfChanged(ref _IsStarred, value); }
         }
 
         Visibility _QueueSongVisibility;
         public Visibility QueueSongVisibility {
             get { return _QueueSongVisibility; }
-            set { this.RaiseAndSetIfChanged(x => x.QueueSongVisibility, value); }
+            set { this.RaiseAndSetIfChanged(ref _QueueSongVisibility, value); }
         }
 
         public ReactiveCommand QueueSong { get; protected set; }
@@ -60,7 +60,7 @@ namespace Play.ViewModels
 
             playApi.FetchImageForAlbum(model)
                 .LoggedCatch(this, Observable.Return(default(BitmapImage)))
-                .ToProperty(this, x => x.AlbumArt);
+                .ToProperty(this, x => x.AlbumArt, out _AlbumArt);
 
             QueueSong = new ReactiveCommand();
             QueueAlbum = new ReactiveCommand();

@@ -29,13 +29,13 @@ namespace Play.ViewModels
         string _BaseUrl;
         public string BaseUrl {
             get { return _BaseUrl; }
-            set { this.RaiseAndSetIfChanged(x => x.BaseUrl, value); }
+            set { this.RaiseAndSetIfChanged(ref _BaseUrl, value); }
         }
 
         string _Token;
         public string Token {
             get { return _Token; }
-            set { this.RaiseAndSetIfChanged(x => x.Token, value); }
+            set { this.RaiseAndSetIfChanged(ref _Token, value); }
         }
 
         ObservableAsPropertyHelper<string> _ErrorMessage;
@@ -93,7 +93,7 @@ namespace Play.ViewModels
             this.WhenAny(x => x.Token, x => x.BaseUrl, (_, __) => Unit.Default)
                 .Subscribe(_ => error.OnNext(null));
 
-            error.ToProperty(this, x => x.ErrorMessage);
+            error.ToProperty(this, x => x.ErrorMessage, out _ErrorMessage);
         }
 
         bool isValidUrl(string url)

@@ -65,7 +65,7 @@ namespace Play.ViewModels
         bool _IsPlaying;
         public bool IsPlaying {
             get { return _IsPlaying; }
-            set { this.RaiseAndSetIfChanged(x => x.IsPlaying, value); }
+            set { this.RaiseAndSetIfChanged(ref _IsPlaying, value); }
         }
 
         public ReactiveCommand TogglePlay { get; protected set; }
@@ -82,9 +82,9 @@ namespace Play.ViewModels
             Search = new ReactiveCommand();
 
             // XXX: God I hate that I have to do this
-            Observable.Never<Song>().ToProperty(this, x => x.CurrentSong);
-            Observable.Never<IEnumerable<Song>>().ToProperty(this, x => x.Queue);
-            Observable.Never<IEnumerable<SongTileViewModel>>().ToProperty(this, x => x.AllSongs);
+            Observable.Never<Song>().ToProperty(this, x => x.CurrentSong, out _CurrentSong);
+            Observable.Never<IEnumerable<Song>>().ToProperty(this, x => x.Queue, out _Queue);
+            Observable.Never<IEnumerable<SongTileViewModel>>().ToProperty(this, x => x.AllSongs, out _AllSongs);
 
             this.WhenNavigatedTo(() => {
                 var playApi = loginMethods.CurrentAuthenticatedClient;
@@ -97,7 +97,7 @@ namespace Play.ViewModels
                 Observable.Defer(playApi.ListenUrl)
                     .Timeout(TimeSpan.FromSeconds(30), RxApp.TaskpoolScheduler)
                     .Retry()
-                    .ToProperty(this, x => x.ListenUrl);
+                    .ToProperty(this, x => x.ListenUrl, out _ListenUrl);
 
                 var pusherSubj = playApi.ConnectToSongChangeNotifications()
                     .Retry(25)
@@ -112,17 +112,20 @@ namespace Play.ViewModels
                 var nowPlaying = shouldUpdate.SelectMany(_ => playApi.NowPlaying()).Multicast(new Subject<Song>());
                 shouldUpdate.SelectMany(_ => playApi.Queue())
                     .Catch(Observable.Return(Enumerable.Empty<Song>()))
-                    .ToProperty(this, x => x.Queue);
+                    .ToProperty(this, x => x.Queue, out _Queue);
 
                 nowPlaying
                     .Catch(Observable.Return(new Song()))
-                    .ToProperty(this, x => x.CurrentSong);
+                    .ToProperty(this, x => x.CurrentSong, out _CurrentSong);
 
                 this.WhenAny(x => x.CurrentSong, x => x.Queue, 
                         (song, queue) => (queue.Value != null && song.Value != null ? queue.Value.StartWith(song.Value) : Enumerable.Empty<Song>()))
                     .Do(x => this.Log().Info("Found {0} items", x.Count()))
-                    .Select(x => x.Select(y => new SongTileViewModel(y, loginMethods.CurrentAuthenticatedClient) { QueueSongVisibility = Visibility.Collapsed }))
-                    .ToProperty(this, x => x.AllSongs);
+                    .Select(x => x.Select(y => 
+                        new SongTileViewModel(y, loginMethods.CurrentAuthenticatedClient) { 
+                            QueueSongVisibility = Visibility.Collapsed 
+                        }))
+                    .ToProperty(this, x => x.AllSongs, out _AllSongs);
 
                 MessageBus.Current.RegisterMessageSource(this.WhenAny(x => x.IsPlaying, x => x.Value), "IsPlaying");
 
@@ -134,7 +137,7 @@ namespace Play.ViewModels
             });
 
             Logout.Subscribe(_ => loginMethods.EraseCredentialsAndNavigateToLogin());
-            Search.Subscribe(_ => screen.Router.Navigate.Execute(RxApp.GetService<ISearchViewModel>()));
+            Search.Subscribe(_ => screen.Router.Navigate.Execute(new SearchViewModel(HostScreen)));
         }
     }
 }
