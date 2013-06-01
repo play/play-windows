@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Akavache;
-using PusherClientDotNet;
 using ReactiveUI;
 using RestSharp;
 using RestSharp.Contrib;
@@ -126,8 +125,9 @@ namespace Play.Models
         {
             var rq = new RestRequest("streaming_info");
 
+            // XXX: Pusher sucks too hard
             return client.RequestAsync<StreamingInfo>(rq)
-                .SelectMany(x => PusherHelper.Connect<object>(() => new Pusher(x.Data.pusher_key), "now_playing_updates", "update_now_playing"))
+                .SelectMany(x => Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(5.0), RxApp.TaskpoolScheduler))
                 .Select(_ => Unit.Default);
         }
 

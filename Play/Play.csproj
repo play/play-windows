@@ -161,7 +161,6 @@
     <Compile Include="FadeImageButton.cs" />
     <Compile Include="HardwareRenderingHelper.cs" />
     <Compile Include="Models\PlayApi.cs" />
-    <Compile Include="Models\PusherHelper.cs" />
     <Compile Include="Models\Song.cs" />
     <Compile Include="RestSharpRxHelper.cs" />
     <Compile Include="ViewModels\AppBootstrapper.cs" />
