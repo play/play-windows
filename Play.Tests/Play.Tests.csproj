@@ -65,6 +65,9 @@
     <Reference Include="ReactiveUI">
       <HintPath>..\packages\reactiveui-core.5.0.0.20130531-alpha\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
     </Reference>
+    <Reference Include="ReactiveUI.Testing">
+      <HintPath>..\packages\reactiveui-testing.5.0.0.20130531-alpha\lib\net45\ReactiveUI.Testing.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\packages\RestSharp.103.0.0-nojsondotnet\lib\net35\RestSharp.dll</HintPath>
       <Private>True</Private>

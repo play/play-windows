@@ -11,7 +11,6 @@ using Ninject;
 using Play.Models;
 using Play.Views;
 using ReactiveUI;
-using ReactiveUI.Routing;
 using RestSharp;
 
 namespace Play.ViewModels

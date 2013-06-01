@@ -11,7 +11,6 @@ using Akavache;
 using Ninject;
 using Play.Models;
 using ReactiveUI;
-using ReactiveUI.Routing;
 using ReactiveUI.Xaml;
 using RestSharp;
 
