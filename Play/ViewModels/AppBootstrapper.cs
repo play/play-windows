@@ -104,6 +104,10 @@ namespace Play.ViewModels
 
         void registerParts(IMutableDependencyResolver dependencyResolver)
         {
+            dependencyResolver.RegisterConstant(this, typeof(ILoginMethods));
+            dependencyResolver.RegisterConstant(this, typeof(IScreen));
+            dependencyResolver.RegisterConstant(this, typeof(IAppBootstrapper));
+
             dependencyResolver.Register(() => new WelcomeView(), typeof(IViewFor<WelcomeViewModel>));
             dependencyResolver.Register(() => new PlayView(), typeof(IViewFor<PlayViewModel>));
             dependencyResolver.Register(() => new SearchView(), typeof(IViewFor<SearchViewModel>));

@@ -72,6 +72,7 @@ namespace Play.ViewModels
             Observable.Defer(() => OkButton.SelectMany(_ => connectToServer(BaseUrl, Token)))
                 .Select(_ => true).Catch(Observable.Return(false))
                 .Repeat()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(result => {
                     if (result == false) {
                         UserError.Throw("Couldn't connect to Play instance.");
