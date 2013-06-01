@@ -61,13 +61,16 @@ namespace Play
                 taskbarIcon.Visibility = Visibility.Visible;
             });
 
-            taskbarIcon.LeftClickCommand = ReactiveCommand.Create(_ => true, _ => {
+            var taskbarIconCmd = new ReactiveCommand();
+            taskbarIconCmd.Subscribe(_ => {
                 if (WindowState == WindowState.Minimized) {
                     WindowState = WindowState.Normal;
                 }
 
                 Show();
             });
+
+            taskbarIcon.LeftClickCommand = taskbarIconCmd;
         }
 
         [DllImport("dwmapi.dll", PreserveSig = false)]

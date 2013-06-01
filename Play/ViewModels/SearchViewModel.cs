@@ -78,9 +78,9 @@ namespace Play.ViewModels
                 .LoggedCatch(this, Observable.Empty<Song>())
                 .CreateCollection(x => (ISongTileViewModel) new SongTileViewModel(x, playApi));
 
-            PerformSearch.ItemsInflight.StartWith(0)
-                .Select(x => x > 0 ? Visibility.Visible : Visibility.Hidden)
-                .ToProperty(this, ref _SearchBusySpinner);
+            PerformSearch.IsExecuting
+                .Select(x => x ? Visibility.Visible : Visibility.Hidden)
+                .ToProperty(this, x => x.SearchBusySpinner, out _SearchBusySpinner);
 
             PerformSearch.ThrownExceptions.Subscribe(_ => { });
 

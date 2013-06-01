@@ -13,7 +13,7 @@ namespace Play
 {
     public static class HardwareRenderingHelper
     {
-        static ILogger log = LogHost.Default;
+        static IFullLogger log = LogHost.Default;
         static readonly string[] videoCardBlacklist = { };
 
         public static bool IsInSoftwareMode { get; private set; }
