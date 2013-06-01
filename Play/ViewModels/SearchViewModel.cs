@@ -55,7 +55,7 @@ namespace Play.ViewModels
             var playApi = loginMethods.CurrentAuthenticatedClient;
 
             if (playApi == null) {
-                hostScreen.Router.Navigate.Execute(RxApp.GetService<IWelcomeViewModel>());
+                hostScreen.Router.Navigate.Execute(new WelcomeViewModel(HostScreen));
                 return;
             }
 
@@ -63,10 +63,10 @@ namespace Play.ViewModels
             PerformSearch = new ReactiveCommand(canSearch);
 
             this.ObservableForProperty(x => x.SearchQuery)
-                .Throttle(TimeSpan.FromMilliseconds(700), RxApp.DeferredScheduler)
+                .Throttle(TimeSpan.FromMilliseconds(700), RxApp.MainThreadScheduler)
                 .InvokeCommand(PerformSearch);
 
-            var searchResults = PerformSearch.RegisterAsyncObservable(_ =>
+            var searchResults = PerformSearch.RegisterAsync(_ =>
                 userCache.GetOrFetchObject(
                     "search__" + SearchQuery, 
                     () => playApi.Search(SearchQuery), 

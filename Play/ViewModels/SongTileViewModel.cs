@@ -65,12 +65,12 @@ namespace Play.ViewModels
             QueueSong = new ReactiveCommand();
             QueueAlbum = new ReactiveCommand();
 
-            QueueSong.RegisterAsyncObservable(_ => playApi.QueueSong(Model))
+            QueueSong.RegisterAsync(_ => playApi.QueueSong(Model))
                 .Subscribe(
                     x => this.Log().Info("Queued {0}", Model.name),
                     ex => this.Log().WarnException("Failed to queue", ex));
 
-            QueueAlbum.RegisterAsyncObservable(_ => playApi.AllSongsOnAlbum(Model.artist, Model.album))
+            QueueAlbum.RegisterAsync(_ => playApi.AllSongsOnAlbum(Model.artist, Model.album))
                 .SelectMany(x => x.ToObservable())
                 .Select(x => reallyTryToQueueSong(playApi, x)).Concat()
                 .Subscribe(
@@ -82,7 +82,7 @@ namespace Play.ViewModels
             IsStarred = model.starred;
             ToggleStarred = new ReactiveCommand();
 
-            ToggleStarred.RegisterAsyncObservable(_ => IsStarred ? playApi.Unstar(Model) : playApi.Star(Model))
+            ToggleStarred.RegisterAsync(_ => IsStarred ? playApi.Unstar(Model) : playApi.Star(Model))
                 .Select(_ => true).LoggedCatch(this, Observable.Return(false))
                 .Subscribe(result => {
                     if (result) IsStarred = !IsStarred;
