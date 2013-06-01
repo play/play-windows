@@ -40,7 +40,7 @@ namespace Play.ViewModels
             apiFactory = dependencyResolver.GetService<Func<IObservable<IPlayApi>>>("ApiFactory");
             registerParts(dependencyResolver);
 
-            LoadCredentials().Subscribe(
+            LoadCredentials().ObserveOn(RxApp.MainThreadScheduler).Subscribe(
                 x => {
                     CurrentAuthenticatedClient = x;
                     Router.Navigate.Execute(new PlayViewModel(this));
