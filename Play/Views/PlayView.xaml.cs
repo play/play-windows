@@ -22,7 +22,7 @@ using RestSharp;
 
 namespace Play.Views
 {
-    public partial class PlayView : UserControl, IViewForViewModel<PlayViewModel>
+    public partial class PlayView : UserControl, IViewFor<PlayViewModel>
     {
         public PlayViewModel ViewModel {
             get { return (PlayViewModel)GetValue(ViewModelProperty); }
@@ -57,7 +57,7 @@ namespace Play.Views
                 });
         }
 
-        object IViewForViewModel.ViewModel {
+        object IViewFor.ViewModel {
             get { return ViewModel; }
             set { ViewModel = (PlayViewModel)value; }
         }

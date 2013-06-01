@@ -118,10 +118,10 @@ namespace Play.ViewModels
             ret.Bind<IWelcomeViewModel>().To<WelcomeViewModel>();
             ret.Bind<IPlayViewModel>().To<PlayViewModel>();
             ret.Bind<ISearchViewModel>().To<SearchViewModel>();
-            ret.Bind<IViewForViewModel<WelcomeViewModel>>().To<WelcomeView>();
-            ret.Bind<IViewForViewModel<PlayViewModel>>().To<PlayView>();
-            ret.Bind<IViewForViewModel<SearchViewModel>>().To<SearchView>();
-            ret.Bind<IViewForViewModel<SongTileViewModel>>().To<SongTileView>().InTransientScope();
+            ret.Bind<IViewFor<WelcomeViewModel>>().To<WelcomeView>();
+            ret.Bind<IViewFor<PlayViewModel>>().To<PlayView>();
+            ret.Bind<IViewFor<SearchViewModel>>().To<SearchView>();
+            ret.Bind<IViewFor<SongTileViewModel>>().To<SongTileView>().InTransientScope();
 
 #if DEBUG
             var testBlobCache = new TestBlobCache();

@@ -18,8 +18,8 @@ namespace Play.ViewModels
         string SearchQuery { get; set; }
         Visibility SearchBusySpinner { get; }
 
-        ReactiveCollection<ISongTileViewModel> SearchResults { get; }
-        ReactiveAsyncCommand PerformSearch { get; }
+        ReactiveList<ISongTileViewModel> SearchResults { get; }
+        ReactiveCommand PerformSearch { get; }
         ReactiveCommand GoBack { get; }
     }
 
@@ -42,15 +42,15 @@ namespace Play.ViewModels
             get { return _SearchBusySpinner.Value; }
         }
 
-        public ReactiveCollection<ISongTileViewModel> SearchResults { get; protected set; }
-        public ReactiveAsyncCommand PerformSearch { get; protected set; }
+        public ReactiveList<ISongTileViewModel> SearchResults { get; protected set; }
+        public ReactiveCommand PerformSearch { get; protected set; }
         public ReactiveCommand GoBack { get; protected set; }
 
         [Inject]
         public SearchViewModel(IScreen hostScreen, ILoginMethods loginMethods, [Named("UserAccount")] IBlobCache userCache)
         {
             HostScreen = hostScreen;
-            SearchResults = new ReactiveCollection<ISongTileViewModel>();
+            SearchResults = new ReactiveList<ISongTileViewModel>();
             var playApi = loginMethods.CurrentAuthenticatedClient;
 
             if (playApi == null) {
@@ -59,7 +59,7 @@ namespace Play.ViewModels
             }
 
             var canSearch = this.WhenAny(x => x.SearchQuery, x => !String.IsNullOrWhiteSpace(x.Value));
-            PerformSearch = new ReactiveAsyncCommand(canSearch);
+            PerformSearch = new ReactiveCommand(canSearch);
 
             this.ObservableForProperty(x => x.SearchQuery)
                 .Throttle(TimeSpan.FromMilliseconds(700), RxApp.DeferredScheduler)

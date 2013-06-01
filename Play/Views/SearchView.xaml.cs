@@ -19,7 +19,7 @@ namespace Play.Views
     /// <summary>
     /// Interaction logic for SearchViewModel.xaml
     /// </summary>
-    public partial class SearchView : UserControl, IViewForViewModel<SearchViewModel>
+    public partial class SearchView : UserControl, IViewFor<SearchViewModel>
     {
         public SearchView()
         {
@@ -33,7 +33,7 @@ namespace Play.Views
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(SearchViewModel), typeof(SearchView), new UIPropertyMetadata(null));
 
-        object IViewForViewModel.ViewModel {
+        object IViewFor.ViewModel {
             get { return ViewModel; }
             set { ViewModel = (SearchViewModel)value; }
         }
