@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Akavache;
-using Ninject;
 using PusherClientDotNet;
 using ReactiveUI;
 using RestSharp;
@@ -43,11 +42,10 @@ namespace Play.Models
         readonly IRestClient client;
         readonly IBlobCache cache;
 
-        [Inject]
-        public PlayApi(IRestClient authedClient, [Named("LocalMachine")] IBlobCache blobCache)
+        public PlayApi(IRestClient authedClient = null, IBlobCache blobCache = null)
         {
-            client = authedClient;
-            cache = blobCache;
+            client = authedClient ?? RxApp.DependencyResolver.GetService<IRestClient>();
+            cache = blobCache ?? BlobCache.LocalMachine;
         }
 
         public IObservable<Song> NowPlaying()

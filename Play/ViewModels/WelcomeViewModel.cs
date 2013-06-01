@@ -8,7 +8,6 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Akavache;
-using Ninject;
 using Play.Models;
 using ReactiveUI;
 using ReactiveUI.Xaml;
@@ -53,13 +52,13 @@ namespace Play.ViewModels
 
         public IScreen HostScreen { get; protected set; }
 
-        [Inject]
         public WelcomeViewModel(
             IScreen screen, 
-            ILoginMethods loginMethods,
-            [Named("connectToServer")] [Optional] Func<string, string, IObservable<Unit>> connectToServerMock)
+            ILoginMethods loginMethods = null,
+            Func<string, string, IObservable<Unit>> connectToServerMock = null)
         {
             HostScreen = screen;
+            loginMethods = loginMethods ?? RxApp.DependencyResolver.GetService<ILoginMethods>();
 
             var canOk = this.WhenAny(x => x.BaseUrl, x => x.Token,
                 (b, u) => isValidUrl(b.Value) && !String.IsNullOrWhiteSpace(u.Value));

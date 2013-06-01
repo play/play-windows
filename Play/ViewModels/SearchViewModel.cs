@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Akavache;
-using Ninject;
 using Play.Models;
 using ReactiveUI;
 using ReactiveUI.Xaml;
@@ -46,10 +45,12 @@ namespace Play.ViewModels
         public ReactiveCommand PerformSearch { get; protected set; }
         public ReactiveCommand GoBack { get; protected set; }
 
-        [Inject]
-        public SearchViewModel(IScreen hostScreen, ILoginMethods loginMethods, [Named("UserAccount")] IBlobCache userCache)
+        public SearchViewModel(IScreen hostScreen, ILoginMethods loginMethods = null, IBlobCache userCache = null)
         {
             HostScreen = hostScreen;
+            loginMethods = loginMethods ?? RxApp.DependencyResolver.GetService<ILoginMethods>();
+            userCache = userCache ?? BlobCache.UserAccount;
+
             SearchResults = new ReactiveList<ISongTileViewModel>();
             var playApi = loginMethods.CurrentAuthenticatedClient;
 

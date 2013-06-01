@@ -9,7 +9,6 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using Ninject;
 using Play.Models;
 using ReactiveUI;
 using ReactiveUI.Xaml;
@@ -73,10 +72,11 @@ namespace Play.ViewModels
         public ReactiveCommand Search { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
 
-        [Inject]
-        public PlayViewModel(IScreen screen, ILoginMethods loginMethods)
+        public PlayViewModel(IScreen screen, ILoginMethods loginMethods = null)
         {
             HostScreen = screen;
+            loginMethods = loginMethods ?? RxApp.DependencyResolver.GetService<ILoginMethods>();
+
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
             Search = new ReactiveCommand();
