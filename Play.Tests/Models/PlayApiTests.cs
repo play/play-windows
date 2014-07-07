@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -112,5 +113,22 @@ namespace Play.Tests.Models
             result.Count.Should().BeGreaterThan(2);
         }
 
+        [Fact(Skip = "Only enable this to test downloads")]
+        public void DownloadAlbumIntegrationTest()
+        {
+            var kernel = new MoqMockingKernel();
+            var client = new RestClient(IntegrationTestUrl.Current);
+
+            client.AddDefaultHeader("Authorization", IntegrationTestUrl.Token);
+            kernel.Bind<IBlobCache>().To<TestBlobCache>();
+
+            var api = new PlayApi(client, kernel.Get<IBlobCache>());
+
+            var result = api.DownloadAlbum("Beirut", "Lon Gisland EP").First();
+
+            using (var of = File.OpenWrite("C:\\Users\\Administrator\\" + result.Item1)) {
+                new MemoryStream(result.Item2).CopyTo(of);
+            }
+        }
     }
 }

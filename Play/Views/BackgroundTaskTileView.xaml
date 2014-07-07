@@ -1,0 +1,17 @@
+﻿<UserControl
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	x:Class="Play.BackgroundTaskTileView"
+	x:Name="UserControl" Height="64"
+	d:DesignWidth="480" d:DesignHeight="64">
+
+	<Grid x:Name="LayoutRoot" DataContext="{Binding ViewModel, ElementName=UserControl}">
+		<StackPanel Margin="32,0" VerticalAlignment="Center">
+			<TextBlock TextWrapping="NoWrap" Text="{Binding CurrentText}" HorizontalAlignment="Center" FontWeight="Bold" Foreground="#D8FFFFFF"/>
+			<ProgressBar Style="{DynamicResource PlayProgressBarStyle}" Height="16" Maximum="100" Minimum="0" Value="{Binding CurrentProgress}" Margin="0,4,0,0"/>
+		</StackPanel>
+	</Grid>
+</UserControl>

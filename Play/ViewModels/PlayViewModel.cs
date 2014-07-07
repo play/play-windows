@@ -29,6 +29,7 @@ namespace Play.ViewModels
         ReactiveCommand TogglePlay { get; }
         ReactiveCommand Search { get; }
         ReactiveCommand Logout { get; }
+        IBackgroundTaskHostViewModel BackgroundTaskHost { get; }
     }
 
     public class PlayViewModel : ReactiveObject, IPlayViewModel
@@ -74,10 +75,13 @@ namespace Play.ViewModels
         public ReactiveCommand Search { get; protected set; }
         public ReactiveCommand Logout { get; protected set; }
 
+        public IBackgroundTaskHostViewModel BackgroundTaskHost { get; protected set; }
+
         [Inject]
         public PlayViewModel(IScreen screen, ILoginMethods loginMethods)
         {
             HostScreen = screen;
+            BackgroundTaskHost = RxApp.GetService<IBackgroundTaskHostViewModel>();
             TogglePlay = new ReactiveCommand();
             Logout = new ReactiveCommand();
             Search = new ReactiveCommand();
