@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Play.ViewModels;
-using ReactiveUI.Routing;
+using ReactiveUI;
 
 namespace Play.Views
 {
     /// <summary>
     /// Interaction logic for SongTileView.xaml
     /// </summary>
-    public partial class SongTileView : UserControl, IViewForViewModel<SongTileViewModel>
+    public partial class SongTileView : UserControl, IViewFor<SongTileViewModel>
     {
         public SongTileViewModel ViewModel {
             get { return (SongTileViewModel)GetValue(ViewModelProperty); }
@@ -34,7 +34,7 @@ namespace Play.Views
             InitializeComponent();
         }
 
-        object IViewForViewModel.ViewModel {
+        object IViewFor.ViewModel {
             get { return ViewModel; }
             set { ViewModel = (SongTileViewModel)value; }
         }

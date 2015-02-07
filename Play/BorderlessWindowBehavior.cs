@@ -13,6 +13,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using ReactiveUI;
 using ReactiveUI.Xaml;
+using System.Reactive;
 
 namespace Play
 {
@@ -38,9 +39,7 @@ namespace Play
                 .Where(e => e.EventArgs.LeftButton == MouseButtonState.Pressed)
                 .Subscribe(_ => AssociatedObject.DragMove());
 
-            Observable.Merge(AssociatedObject.ObservableFromDP(x => x.MinHeight), AssociatedObject.ObservableFromDP(x => x.MinWidth))
-                .StartWith((ObservedChange<Window, double>)null)
-                .ObserveOn(RxApp.DeferredScheduler)
+            AssociatedObject.WhenAny(x => x.MinHeight, x => x.MinWidth, (h,w) => Unit.Default)
                 .Subscribe(_ =>
                 {
                     var source = PresentationSource.FromVisual(AssociatedObject);

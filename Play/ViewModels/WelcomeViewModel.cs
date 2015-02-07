@@ -8,10 +8,8 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Akavache;
-using Ninject;
 using Play.Models;
 using ReactiveUI;
-using ReactiveUI.Routing;
 using ReactiveUI.Xaml;
 using RestSharp;
 
@@ -31,13 +29,13 @@ namespace Play.ViewModels
         string _BaseUrl;
         public string BaseUrl {
             get { return _BaseUrl; }
-            set { this.RaiseAndSetIfChanged(x => x.BaseUrl, value); }
+            set { this.RaiseAndSetIfChanged(ref _BaseUrl, value); }
         }
 
         string _Token;
         public string Token {
             get { return _Token; }
-            set { this.RaiseAndSetIfChanged(x => x.Token, value); }
+            set { this.RaiseAndSetIfChanged(ref _Token, value); }
         }
 
         ObservableAsPropertyHelper<string> _ErrorMessage;
@@ -54,13 +52,13 @@ namespace Play.ViewModels
 
         public IScreen HostScreen { get; protected set; }
 
-        [Inject]
         public WelcomeViewModel(
             IScreen screen, 
-            ILoginMethods loginMethods,
-            [Named("connectToServer")] [Optional] Func<string, string, IObservable<Unit>> connectToServerMock)
+            ILoginMethods loginMethods = null,
+            Func<string, string, IObservable<Unit>> connectToServerMock = null)
         {
             HostScreen = screen;
+            loginMethods = loginMethods ?? RxApp.DependencyResolver.GetService<ILoginMethods>();
 
             var canOk = this.WhenAny(x => x.BaseUrl, x => x.Token,
                 (b, u) => isValidUrl(b.Value) && !String.IsNullOrWhiteSpace(u.Value));
@@ -74,6 +72,7 @@ namespace Play.ViewModels
             Observable.Defer(() => OkButton.SelectMany(_ => connectToServer(BaseUrl, Token)))
                 .Select(_ => true).Catch(Observable.Return(false))
                 .Repeat()
+                .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(result => {
                     if (result == false) {
                         UserError.Throw("Couldn't connect to Play instance.");
@@ -95,7 +94,7 @@ namespace Play.ViewModels
             this.WhenAny(x => x.Token, x => x.BaseUrl, (_, __) => Unit.Default)
                 .Subscribe(_ => error.OnNext(null));
 
-            error.ToProperty(this, x => x.ErrorMessage);
+            error.ToProperty(this, x => x.ErrorMessage, out _ErrorMessage);
         }
 
         bool isValidUrl(string url)

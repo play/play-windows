@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Akavache;
-using Ninject;
-using PusherClientDotNet;
 using ReactiveUI;
 using RestSharp;
 using RestSharp.Contrib;
@@ -43,11 +41,10 @@ namespace Play.Models
         readonly IRestClient client;
         readonly IBlobCache cache;
 
-        [Inject]
-        public PlayApi(IRestClient authedClient, [Named("LocalMachine")] IBlobCache blobCache)
+        public PlayApi(IRestClient authedClient = null, IBlobCache blobCache = null)
         {
-            client = authedClient;
-            cache = blobCache;
+            client = authedClient ?? RxApp.DependencyResolver.GetService<IRestClient>();
+            cache = blobCache ?? BlobCache.LocalMachine;
         }
 
         public IObservable<Song> NowPlaying()
@@ -128,8 +125,9 @@ namespace Play.Models
         {
             var rq = new RestRequest("streaming_info");
 
+            // XXX: Pusher sucks too hard
             return client.RequestAsync<StreamingInfo>(rq)
-                .SelectMany(x => PusherHelper.Connect<object>(() => new Pusher(x.Data.pusher_key), "now_playing_updates", "update_now_playing"))
+                .SelectMany(x => Observable.Timer(DateTimeOffset.Now, TimeSpan.FromSeconds(5.0), RxApp.TaskpoolScheduler))
                 .Select(_ => Unit.Default);
         }
 

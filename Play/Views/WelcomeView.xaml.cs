@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Play.ViewModels;
-using ReactiveUI.Routing;
+using ReactiveUI;
 
 namespace Play.Views
 {
     /// <summary>
     /// Interaction logic for WelcomeViewModel.xaml
     /// </summary>
-    public partial class WelcomeView : UserControl, IViewForViewModel<WelcomeViewModel>
+    public partial class WelcomeView : UserControl, IViewFor<WelcomeViewModel>
     {
         public WelcomeView()
         {
@@ -34,7 +34,7 @@ namespace Play.Views
         public static readonly DependencyProperty ViewModelProperty =
             DependencyProperty.Register("ViewModel", typeof(WelcomeViewModel), typeof(WelcomeView), new UIPropertyMetadata(null));
 
-        object IViewForViewModel.ViewModel {
+        object IViewFor.ViewModel {
             get { return ViewModel; }
             set { ViewModel = (WelcomeViewModel)value; }
         }

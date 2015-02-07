@@ -6,7 +6,6 @@ using System.Text;
 using System.Windows.Media.Imaging;
 using Akavache;
 using Newtonsoft.Json;
-using Ninject;
 using Play.ViewModels;
 using RestSharp;
 

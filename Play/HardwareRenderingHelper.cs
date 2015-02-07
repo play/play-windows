@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;
@@ -7,13 +8,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Interop;
 using System.Windows.Media;
-using NLog;
 
 namespace Play
 {
     public static class HardwareRenderingHelper
     {
-        static readonly Logger log = LogManager.GetCurrentClassLogger();
+        static IFullLogger log = LogHost.Default;
         static readonly string[] videoCardBlacklist = { };
 
         public static bool IsInSoftwareMode { get; private set; }

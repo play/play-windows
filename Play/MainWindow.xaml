@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Play.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" UseLayoutRounding="True" SnapsToDevicePixels="True"
-        xmlns:Routing="clr-namespace:ReactiveUI.Routing;assembly=ReactiveUI.Routing"
+        xmlns:Routing="clr-namespace:ReactiveUI.Xaml;assembly=ReactiveUI.Xaml"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:Play="clr-namespace:Play"
         Title="MainWindow" Height="350" Width="525"  WindowStartupLocation="CenterScreen"  
         PreviewMouseMove="HandlePreviewMouseMove" PreviewMouseDown="HandleHeaderPreviewMouseDown" Icon="App.ico">

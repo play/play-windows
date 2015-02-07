@@ -11,7 +11,6 @@ using Ninject.MockingKernel.Moq;
 using Play.Models;
 using Play.ViewModels;
 using ReactiveUI;
-using ReactiveUI.Routing;
 using ReactiveUI.Xaml;
 using Xunit;
 

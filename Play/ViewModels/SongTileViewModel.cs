@@ -16,13 +16,13 @@ namespace Play.ViewModels
         bool IsStarred { get; set; }
         Visibility QueueSongVisibility { get; set; }
 
-        ReactiveAsyncCommand QueueSong { get; }
-        ReactiveAsyncCommand QueueAlbum { get; }
+        ReactiveCommand QueueSong { get; }
+        ReactiveCommand QueueAlbum { get; }
 
-        ReactiveAsyncCommand ShowSongsFromArtist { get; }
-        ReactiveAsyncCommand ShowSongsFromAlbum { get; }
+        ReactiveCommand ShowSongsFromArtist { get; }
+        ReactiveCommand ShowSongsFromAlbum { get; }
 
-        ReactiveAsyncCommand ToggleStarred { get; }
+        ReactiveCommand ToggleStarred { get; }
     }
 
     public class SongTileViewModel : ReactiveObject, ISongTileViewModel
@@ -37,22 +37,22 @@ namespace Play.ViewModels
         bool _IsStarred;
         public bool IsStarred {
             get { return _IsStarred; }
-            set { this.RaiseAndSetIfChanged(x => x.IsStarred, value); }
+            set { this.RaiseAndSetIfChanged(ref _IsStarred, value); }
         }
 
         Visibility _QueueSongVisibility;
         public Visibility QueueSongVisibility {
             get { return _QueueSongVisibility; }
-            set { this.RaiseAndSetIfChanged(x => x.QueueSongVisibility, value); }
+            set { this.RaiseAndSetIfChanged(ref _QueueSongVisibility, value); }
         }
 
-        public ReactiveAsyncCommand QueueSong { get; protected set; }
-        public ReactiveAsyncCommand QueueAlbum { get; protected set; }
+        public ReactiveCommand QueueSong { get; protected set; }
+        public ReactiveCommand QueueAlbum { get; protected set; }
 
-        public ReactiveAsyncCommand ShowSongsFromArtist { get; protected set; }
-        public ReactiveAsyncCommand ShowSongsFromAlbum { get; protected set; }
+        public ReactiveCommand ShowSongsFromArtist { get; protected set; }
+        public ReactiveCommand ShowSongsFromAlbum { get; protected set; }
 
-        public ReactiveAsyncCommand ToggleStarred { get; protected set; }
+        public ReactiveCommand ToggleStarred { get; protected set; }
 
         public SongTileViewModel(Song model, IPlayApi playApi)
         {
@@ -60,17 +60,17 @@ namespace Play.ViewModels
 
             playApi.FetchImageForAlbum(model)
                 .LoggedCatch(this, Observable.Return(default(BitmapImage)))
-                .ToProperty(this, x => x.AlbumArt);
+                .ToProperty(this, x => x.AlbumArt, out _AlbumArt);
 
-            QueueSong = new ReactiveAsyncCommand();
-            QueueAlbum = new ReactiveAsyncCommand();
+            QueueSong = new ReactiveCommand();
+            QueueAlbum = new ReactiveCommand();
 
-            QueueSong.RegisterAsyncObservable(_ => playApi.QueueSong(Model))
+            QueueSong.RegisterAsync(_ => playApi.QueueSong(Model))
                 .Subscribe(
                     x => this.Log().Info("Queued {0}", Model.name),
                     ex => this.Log().WarnException("Failed to queue", ex));
 
-            QueueAlbum.RegisterAsyncObservable(_ => playApi.AllSongsOnAlbum(Model.artist, Model.album))
+            QueueAlbum.RegisterAsync(_ => playApi.AllSongsOnAlbum(Model.artist, Model.album))
                 .SelectMany(x => x.ToObservable())
                 .Select(x => reallyTryToQueueSong(playApi, x)).Concat()
                 .Subscribe(
@@ -80,9 +80,9 @@ namespace Play.ViewModels
             QueueAlbum.ThrownExceptions.Subscribe(x => { });
 
             IsStarred = model.starred;
-            ToggleStarred = new ReactiveAsyncCommand();
+            ToggleStarred = new ReactiveCommand();
 
-            ToggleStarred.RegisterAsyncObservable(_ => IsStarred ? playApi.Unstar(Model) : playApi.Star(Model))
+            ToggleStarred.RegisterAsync(_ => IsStarred ? playApi.Unstar(Model) : playApi.Star(Model))
                 .Select(_ => true).LoggedCatch(this, Observable.Return(false))
                 .Subscribe(result => {
                     if (result) IsStarred = !IsStarred;
