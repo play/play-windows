@@ -73,7 +73,7 @@
                     </local:FadeImageToggleButton.HighlightContent>
                 </local:FadeImageToggleButton>
 
-                <local:FadeImageButton Margin="4">
+                <local:FadeImageButton Margin="4" Command="{Binding DownloadAlbum}">
                     <local:FadeImageButton.Content>
                         <Viewbox Width="16" Height="16">
                             <Canvas Width="72.000" Height="72.000" Background="#01888888">
@@ -94,7 +94,7 @@
                     </local:FadeImageButton.HighlightContent>
                 </local:FadeImageButton>
 
-                <local:FadeImageButton Margin="4">
+                <local:FadeImageButton Margin="4" Command="{Binding DownloadSong}">
                     <local:FadeImageButton.Content>
                         <Viewbox Width="16" Height="16">
                             <Canvas Width="61.835" Height="72.018" Background="#01888888">

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Akavache;
@@ -28,6 +29,8 @@ namespace Play.Models
         IObservable<List<Song>> Search(string query);
         IObservable<List<Song>> AllSongsForArtist(string name);
         IObservable<List<Song>> AllSongsOnAlbum(string artist, string album);
+        IObservable<Tuple<string, byte[]>> DownloadSong(Song song);
+        IObservable<Tuple<string, byte[]>> DownloadAlbum(string artist, string album);
 
         IObservable<Unit> ConnectToSongChangeNotifications();
     }
@@ -124,6 +127,24 @@ namespace Play.Models
             return client.RequestAsync<SongQueue>(rq).Select(x => x.Data.songs);
         }
 
+        public IObservable<Tuple<string, byte[]>> DownloadSong(Song song)
+        {
+            var rq = new RestRequest(String.Format("song/{0}/download", song.id));
+
+            return client.RequestAsync(rq)
+                .Select(x => Tuple.Create(fileNameFromResponse(x) ?? "song.mp3", x.RawBytes));
+        }
+
+        public IObservable<Tuple<string, byte[]>> DownloadAlbum(string artist, string album)
+        {
+            var rq = new RestRequest(String.Format("artist/{0}/album/{1}/download", 
+                HttpUtility.UrlEncode(artist).Replace("+", "%20"), 
+                HttpUtility.UrlEncode(album).Replace("+", "%20")));
+
+            return client.RequestAsync(rq)
+                .Select(x => Tuple.Create(fileNameFromResponse(x) ?? "songs.zip", x.RawBytes));
+        }
+
         public IObservable<Unit> ConnectToSongChangeNotifications()
         {
             var rq = new RestRequest("streaming_info");
@@ -137,6 +158,19 @@ namespace Play.Models
         {
             var rq = new RestRequest("streaming_info");
             return client.RequestAsync<StreamingInfo>(rq).Select(x => x.Data.stream_url);
+        }
+
+        string fileNameFromResponse(RestResponse response)
+        {
+            var disp = response.Headers.FirstOrDefault(y => y.Name.Equals("content-disposition", StringComparison.InvariantCultureIgnoreCase));
+            if (disp == null) {
+                return null;
+            }
+
+            var re = new Regex("filename=\"([^\"]+)\"(;|$)");
+            var m = re.Match((string) disp.Value);
+
+            return m.Success ? m.Groups[1].Value : null;
         }
     }
 }

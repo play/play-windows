@@ -9,6 +9,7 @@
     <Grid DataContext="{Binding ViewModel, ElementName=theView}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -88,8 +89,10 @@
                 </StackPanel>
             </Grid>
         </Border>
+    
+        <local:BackgroundTaskHostView Grid.Row="1" ViewModel="{Binding BackgroundTaskHost}" />
 
-        <Grid Grid.Row="1" MinHeight="120" Background="#FFF3F3F3">
+        <Grid Grid.Row="2" MinHeight="120" Background="#FFF3F3F3">
             <ScrollViewer  VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" >
                 <ItemsControl ItemsSource="{Binding AllSongs}">
                     <ItemsControl.ItemTemplate>

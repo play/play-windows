@@ -10,14 +10,14 @@ namespace Play.Tests
     {
         public static string Current {
             get {
-                //return "https://play.yourcompany.com";
+                return "https://play.githubapp.com";
                 throw new Exception("Configure IntegrationTestUrl.cs first");
             } 
         }
 
         public static string Token {
             get {
-                //return "a04d03";
+                return "f07c8b";
                 throw new Exception("Configure IntegrationTestUrl.cs first");
             } 
         }
